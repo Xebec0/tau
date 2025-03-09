@@ -1,0 +1,52 @@
+{% extends 'applicants/base.html' %}
+
+{% block content %}
+<div class="dashboard-container">
+    <h1 class="dashboard-title">Welcome to Your Dashboard</h1>
+    
+    <div class="status-grid">
+        <div class="status-card">
+            <h2 class="card-title">Application Status</h2>
+            <div class="status-indicator">
+                <div class="status-dot {% if user.applicant.status == 'approved' %}bg-green-500{% elif user.applicant.status == 'rejected' %}bg-red-500{% else %}bg-yellow-500{% endif %}"></div>
+                <span>{{ user.applicant.status|title }}</span>
+            </div>
+        </div>
+        
+        <div class="status-card">
+            <h2 class="card-title">Required Documents</h2>
+            <ul class="document-list">
+                <li class="document-item">
+                    <span>📄</span>
+                    <span>Resume</span>
+                </li>
+                <li class="document-item">
+                    <span>🎓</span>
+                    <span>Transcript</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <div>
+        <h2 class="card-title">Quick Actions</h2>
+        <div>
+            <div class="actions-grid">
+                <a href="{% url 'applicants:upload_documents' %}" class="action-button">
+                    Upload Documents
+                </a>
+                <a href="{% url 'applicants:view_farms' %}" class="action-button">
+                    View Farms
+                </a>
+                <a href="{% url 'applicants:update_profile' %}" class="action-button">
+                    Update Profile
+                </a>
+                <a href="{% url 'applicants:contact_support' %}" class="action-button">
+                    Contact Support
+                </a>
+            </div>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

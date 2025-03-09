@@ -1,0 +1,39 @@
+{% extends 'applicants/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-6">
+            {% if farm.image %}
+            <img src="{{ farm.image.url }}" class="img-fluid rounded" alt="{{ farm.name }}">
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <h2>{{ farm.name }}</h2>
+            <div class="card mb-4">
+                <div class="card-body">
+                    <p><strong>Location:</strong> {{ farm.location }}</p>
+                    <p><strong>Specialization:</strong> {{ farm.specialization }}</p>
+                    <p><strong>Capacity:</strong> {{ farm.capacity }}</p>
+                    <p class="mt-3"><strong>Description:</strong></p>
+                    <p>{{ farm.description }}</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h4>Apply to this Farm</h4>
+                    <form method="post" action="{% url 'applicants:apply_to_farm' farm.id %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="motivation_letter" class="form-label">Motivation Letter</label>
+                            <textarea class="form-control" id="motivation_letter" name="motivation_letter" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success">Submit Application</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

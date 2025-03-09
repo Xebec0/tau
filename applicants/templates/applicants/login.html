@@ -1,0 +1,69 @@
+{% extends 'applicants/base.html' %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-[#4CAF50]">Welcome Back!</h2>
+            <p class="mt-2 text-gray-600">Enter your credentials to access your account</p>
+        </div>
+
+        <!-- Login Form -->
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Username Field -->
+            <div class="input-group">
+                <input type="text" name="username" id="id_username" required
+                       class="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent"
+                       placeholder=" ">
+                <label for="id_username" class="text-gray-500">Username</label>
+            </div>
+
+            <!-- Password Field -->
+            <div class="input-group">
+                <input type="password" name="password" id="id_password" required
+                       class="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent"
+                       placeholder=" ">
+                <label for="id_password" class="text-gray-500">Password</label>
+            </div>
+
+            <!-- Error Messages -->
+            {% if form.errors %}
+            <div class="bg-red-50 text-red-500 p-4 rounded-lg text-sm">
+                Invalid username or password. Please try again.
+            </div>
+            {% endif %}
+
+            <!-- Submit Button -->
+            <button type="submit" 
+                    class="w-full bg-[#4CAF50] text-white py-3 rounded-lg hover:bg-[#45a049] transition-all transform hover:scale-105">
+                Sign In
+            </button>
+        </form>
+
+        <!-- Additional Links -->
+        <div class="mt-6 text-center space-y-2">
+            <p class="text-gray-600">
+                Don't have an account? 
+                <a href="{% url 'applicants:register' %}" class="text-[#4CAF50] hover:text-[#45a049] font-medium">
+                    Register here
+                </a>
+            </p>
+            <a href="#" class="block text-sm text-[#4CAF50] hover:text-[#45a049]">
+                Forgot your password?
+            </a>
+        </div>
+
+        <!-- Divider -->
+        <div class="mt-8 border-t border-gray-200 pt-6">
+            <p class="text-center text-sm text-gray-600">
+                By continuing, you agree to our 
+                <a href="#" class="text-[#4CAF50] hover:text-[#45a049]">Terms of Service</a> and 
+                <a href="#" class="text-[#4CAF50] hover:text-[#45a049]">Privacy Policy</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'applicants/base.html' %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Applicant Details</h3>
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">{{ applicant.full_name }}</h5>
+        <p class="card-text">
+            <strong>Student Number:</strong> {{ applicant.student_number }}<br>
+            <strong>Gender:</strong> {{ applicant.gender }}<br>
+            <strong>Date of Birth:</strong> {{ applicant.date_of_birth }}<br>
+            <strong>Applied on:</strong> {{ applicant.created_at }}
+        </p>
+        <a href="{% url 'applicants:applicant_list' %}" class="btn btn-secondary">Back to List</a>
+    </div>
+</div>
+{% endblock %}

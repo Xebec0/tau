@@ -1,0 +1,109 @@
+{% extends 'applicants/base.html' %}
+
+{% block title %}Available Farms{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header Section -->
+    <div class="row mb-5">
+        <div class="col-lg-8">
+            <h1 class="dashboard-title mb-2">Agricultural Opportunities</h1>
+            <p class="text-muted lead">Discover and apply to leading farms across the country</p>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="card shadow-sm mb-5">
+        <div class="card-body p-4">
+            <form method="get" class="row g-3" aria-label="Search and Filter Farms">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <input type="text" name="search" id="search" class="form-control" placeholder=" " value="{{ request.GET.search }}">
+                        <label for="search">Find your ideal farm placement</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <select name="location" id="location" class="form-select">
+                            <option value="">All Locations</option>
+                            {% for location in locations %}
+                            <option value="{{ location }}" {% if request.GET.location == location %}selected{% endif %}>
+                                {{ location }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <label for="location">Location</label>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <select name="specialization" id="specialization" class="form-select">
+                            <option value="">All Specializations</option>
+                            {% for specialization in specializations %}
+                            <option value="{{ specialization }}" {% if request.GET.specialization == specialization %}selected{% endif %}>
+                                {{ specialization }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <label for="specialization">Specialization</label>
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <button type="submit" class="submit-btn">Apply Filters</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Farm Listings Grid -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for farm in farms %}
+        <div class="col">
+            <div class="applicant-card h-100">
+                {% if farm.image %}
+                <div class="farm-image-wrapper">
+                    <img src="{{ farm.image.url }}" alt="{{ farm.name }}" class="farm-image">
+                </div>
+                {% endif %}
+                
+                <div class="card-content p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h3 class="applicant-name">{{ farm.name }}</h3>
+                        <span class="status-badge status-approved">Available</span>
+                    </div>
+                    
+                    <div class="applicant-details mb-4">
+                        <div class="detail-item">
+                            <i class="fas fa-map-marker-alt text-primary"></i>
+                            <span>{{ farm.location }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-seedling text-success"></i>
+                            <span>{{ farm.specialization }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-users text-info"></i>
+                            <span>{{ farm.capacity }} positions available</span>
+                        </div>
+                    </div>
+                    
+                    <a href="{% url 'applicants:farm_detail' farm.id %}" class="action-button d-block text-center">
+                        Explore Opportunity
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center p-4">
+                <i class="fas fa-info-circle me-2"></i>
+                No farms currently match your search criteria. Try adjusting your filters.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

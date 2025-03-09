@@ -1,0 +1,40 @@
+{% extends 'applicants/base.html' %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-[#4CAF50]">Choose Registration Type</h2>
+            <p class="mt-2 text-gray-600">Select your role to continue registration</p>
+        </div>
+
+        <form method="post" class="space-y-4">
+            {% csrf_token %}
+            <button type="submit" formaction="{% url 'applicants:register_applicant' %}" 
+                    class="w-full flex items-center justify-center px-8 py-6 border-2 border-[#4CAF50] rounded-lg hover:bg-[#4CAF50] hover:text-white transition-all transform hover:scale-105">
+                <div class="text-center">
+                    <h3 class="text-xl font-semibold">Applicant</h3>
+                    <p class="text-sm mt-1">Register as a student applicant</p>
+                </div>
+            </button>
+
+            <button type="submit" formaction="{% url 'applicants:register_admin' %}"
+                    class="w-full flex items-center justify-center px-8 py-6 border-2 border-[#795548] rounded-lg hover:bg-[#795548] hover:text-white transition-all transform hover:scale-105">
+                <div class="text-center">
+                    <h3 class="text-xl font-semibold">Administrator</h3>
+                    <p class="text-sm mt-1">Register as an admin user</p>
+                </div>
+            </button>
+        </form>
+
+        <div class="mt-6 text-center">
+            <p class="text-gray-600">
+                Already have an account?
+                <a href="{% url 'applicants:login' %}" class="text-[#4CAF50] hover:text-[#45a049] font-medium">
+                    Sign in here
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

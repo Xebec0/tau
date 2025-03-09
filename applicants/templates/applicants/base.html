@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TAU Agrostudies Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'applicants/css/styles.css' %}">
+</head>
+<body class="bg-[#FAFAFA]">
+    <nav class="bg-[#4CAF50] shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <img src="{% static 'applicants/images/Tarlac_Agricultural_University_logo.png' %}"
+                             alt="TAU Logo"
+                             class="h-14 w-14 object-contain">
+                    </div>
+                    <div class="ml-4">
+                        <a href="{% url 'applicants:landing' %}"
+                           class="text-white font-bold text-2xl tracking-wide hover:text-[#A5D6A7] transition-colors duration-200">
+                           TAU Portal
+                        </a>
+                    </div>
+                </div>
+                <div class="flex space-x-4">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'applicants:dashboard' %}"
+                           class="text-white hover:bg-[#A5D6A7] hover:text-[#795548] px-3 py-2 rounded-md transition-colors duration-200">Dashboard</a>
+                        <form method="POST" action="{% url 'applicants:logout' %}" class="inline">
+                            {% csrf_token %}
+                            <button type="submit" 
+                                    class="text-white hover:bg-[#A5D6A7] hover:text-[#795548] px-3 py-2 rounded-md transition-colors duration-200">
+                                Logout
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'applicants:login' %}"
+                           class="text-white hover:bg-[#A5D6A7] hover:text-[#795548] px-3 py-2 rounded-md transition-colors duration-200">Login</a>
+                        <a href="{% url 'applicants:register' %}"
+                           class="text-white hover:bg-[#A5D6A7] hover:text-[#795548] px-3 py-2 rounded-md transition-colors duration-200">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main content area -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        {% if messages %}
+        <div class="messages mb-4">
+            {% for message in messages %}
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+       
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-[#4CAF50] text-white py-4 mt-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <p>© 2025 TAU Agrostudies Portal. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,31 @@
+{% extends 'applicants/base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto p-4">
+    <div class="grid grid-cols-3 gap-4">
+        {% for applicant in applicants %}
+        <div class="bg-white w-64 h-64 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+            <div class="h-full flex flex-col justify-between">
+                <div>
+                    <h2 class="font-semibold text-[#4CAF50] text-center mb-4">{{ applicant.full_name }}</h2>
+                    <div class="space-y-2">
+                        <p class="text-sm">📚 ID: {{ applicant.student_number }}</p>
+                        <p class="text-sm">📧 Email: {{ applicant.user.email }}</p>
+                        <p class="text-sm">🌍 Country: {{ applicant.country }}</p>
+                        <p class="text-sm">📱 Phone: {{ applicant.phone_number }}</p>
+                    </div>
+                </div>
+                <form method="POST" action="{% url 'applicants:delete_applicant' applicant.student_number %}"
+                      onsubmit="return confirm('Are you sure you want to delete this applicant?');"
+                      class="text-center">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors duration-200 text-sm">
+                        Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'applicants/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-bold text-[#795548] mb-6">Document Upload Center</h2>
+        
+        <!-- Document Status -->
+        <div class="mb-8 p-4 bg-gray-50 rounded-lg">
+            <h3 class="font-semibold mb-2">Current Document Status</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="flex items-center">
+                    <div class="w-3 h-3 rounded-full {% if user.applicant.resume %}bg-green-500{% else %}bg-gray-300{% endif %} mr-2"></div>
+                    <span>Resume: {% if user.applicant.resume %}Uploaded{% else %}Not uploaded{% endif %}</span>
+                </div>
+                <div class="flex items-center">
+                    <div class="w-3 h-3 rounded-full {% if user.applicant.transcript %}bg-green-500{% else %}bg-gray-300{% endif %} mr-2"></div>
+                    <span>Transcript: {% if user.applicant.transcript %}Uploaded{% else %}Not uploaded{% endif %}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Resume Upload -->
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">Resume</h3>
+                <form method="post" enctype="multipart/form-data" class="space-y-4">
+                    {% csrf_token %}
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">Upload your resume (PDF, DOC, DOCX)</label>
+                        <input type="file" name="resume" accept=".pdf,.doc,.docx" multiple
+       class="w-full border border-gray-300 rounded-lg p-2">
+
+                    </div>
+                    <button type="submit" name="document_type" value="resume"
+                            class="bg-[#795548] text-white px-4 py-2 rounded-lg hover:bg-[#6d4c41] w-full">
+                        Upload Resume
+                    </button>
+                </form>
+            </div>
+
+            <!-- Transcript Upload -->
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                <h3 class="text-lg font-semibold mb-4">Academic Transcript</h3>
+                <form method="post" enctype="multipart/form-data" class="space-y-4">
+                    {% csrf_token %}
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">Upload your transcript (PDF only)</label>
+                        <input type="file" name="transcript" accept=".pdf"
+                               class="w-full border border-gray-300 rounded-lg p-2">
+                    </div>
+                    <button type="submit" name="document_type" value="transcript"
+                            class="bg-[#795548] text-white px-4 py-2 rounded-lg hover:bg-[#6d4c41] w-full">
+                        Upload Transcript
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

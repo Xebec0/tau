@@ -1,0 +1,173 @@
+{% extends 'applicants/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header Section with Welcome Message -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-[#795548]">Admin Dashboard</h1>
+                <p class="text-gray-600 mt-2">Welcome back, <span class="font-semibold">{{ request.user.username }}</span>!</p>
+            </div>
+            <div class="text-right">
+                <p class="text-sm text-gray-500">Last login: {{ request.user.last_login|date:"F j, Y, g:i a" }}</p>
+            </div>
+        </div>
+    </div>
+
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
+    <div class="bg-white rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200 flex flex-col items-center justify-center h-[160px]">
+        <h3 class="text-lg font-semibold text-[#795548]">Total Applicants</h3>
+        <p class="text-3xl font-bold mt-2">{{ total_applicants }}</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200 flex flex-col items-center justify-center h-[160px]">
+        <h3 class="text-lg font-semibold text-[#795548]">Pending</h3>
+        <p class="text-3xl font-bold mt-2 text-yellow-600">{{ pending_applications }}</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200 flex flex-col items-center justify-center h-[160px]">
+        <h3 class="text-lg font-semibold text-[#795548]">Approved</h3>
+        <p class="text-3xl font-bold mt-2 text-green-600">{{ approved_applications }}</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200 flex flex-col items-center justify-center h-[160px]">
+        <h3 class="text-lg font-semibold text-[#795548]">Rejected</h3>
+        <p class="text-3xl font-bold mt-2 text-red-600">{{ rejected_applications }}</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200 flex flex-col items-center justify-center h-[160px]">
+        <h3 class="text-lg font-semibold text-[#795548]">Farm Applications</h3>
+        <p class="text-3xl font-bold mt-2 text-blue-600">{{ total_farm_applications }}</p>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-lg p-6 transform hover:scale-105 transition-transform duration-200 flex flex-col items-center justify-center h-[160px]">
+        <h3 class="text-lg font-semibold text-[#795548]">Pending Farms</h3>
+        <p class="text-3xl font-bold mt-2 text-orange-600">{{ pending_farm_applications }}</p>
+    </div>
+</div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold text-[#795548] mb-6">Quick Actions</h2>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <a href="{% url 'applicants:applicant_list' %}"
+               class="bg-[#795548] text-white p-4 rounded-lg text-center hover:bg-[#6d4c41] transition-all duration-200 transform hover:scale-105">
+                <span class="font-semibold">View All Applicants</span>
+            </a>
+            
+            <a href="{% url 'applicants:review_applications_list' %}"
+               class="bg-[#795548] text-white p-4 rounded-lg text-center hover:bg-[#6d4c41] transition-all duration-200 transform hover:scale-105">
+                <span class="font-semibold">Review Applications</span>
+            </a>
+            
+            <a href="{% url 'applicants:manage_farm_applications' %}"
+               class="bg-[#795548] text-white p-4 rounded-lg text-center hover:bg-[#6d4c41] transition-all duration-200 transform hover:scale-105">
+                <span class="font-semibold">Manage Farm Applications</span>
+            </a>
+
+            <a href="#"
+               class="bg-[#795548] text-white p-4 rounded-lg text-center hover:bg-[#6d4c41] transition-all duration-200 transform hover:scale-105">
+                <span class="font-semibold">Generate Reports</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Applications with Enhanced Table -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-[#795548]">Recent Applications</h2>
+            <a href="{% url 'applicants:applicant_list' %}" class="text-[#795548] hover:text-[#6d4c41] flex items-center">
+                <span class="text-sm font-semibold">View All</span>
+                <span class="material-icons ml-1">arrow_forward</span>
+            </a>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr class="bg-gray-50">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student Number</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Full Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for applicant in recent_applications %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">{{ applicant.student_number }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ applicant.full_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 rounded-full text-sm font-medium
+                                {% if applicant.status == 'approved' %}bg-green-100 text-green-800
+                                {% elif applicant.status == 'rejected' %}bg-red-100 text-red-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ applicant.status|title }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{% url 'applicants:review_application' applicant.student_number %}"
+                               class="text-[#795548] hover:text-[#6d4c41] font-medium flex items-center">
+                                <span class="material-icons mr-1 text-sm">visibility</span>
+                                Review
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Farm Applications -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-[#795548]">Recent Farm Applications</h2>
+            <a href="{% url 'applicants:manage_farm_applications' %}" class="text-[#795548] hover:text-[#6d4c41] flex items-center">
+                <span class="text-sm font-semibold">View All</span>
+                <span class="material-icons ml-1">arrow_forward</span>
+            </a>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead>
+                    <tr class="bg-gray-50">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicant Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farm Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied Date</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for application in recent_farm_applications %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap">{{ application.applicant.full_name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ application.farm.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">{{ application.applied_at|date:"F j, Y" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-3 py-1 rounded-full text-sm font-medium
+                                {% if application.status == 'approved' %}bg-green-100 text-green-800
+                                {% elif application.status == 'rejected' %}bg-red-100 text-red-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                {{ application.status|title }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{% url 'applicants:update_farm_application' application.id %}"
+                               class="text-[#795548] hover:text-[#6d4c41] font-medium flex items-center">
+                                <span class="material-icons mr-1 text-sm">visibility</span>
+                                Review
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

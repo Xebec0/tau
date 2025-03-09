@@ -1,0 +1,40 @@
+{% extends 'applicants/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="landing-container">
+    <!-- Hero Section -->
+    <div class="hero-section bg-gradient-to-r from-[#4CAF50] to-[#A5D6A7] text-white">
+        <div class="max-w-4xl mx-auto text-center py-20">
+            {% if user.is_authenticated %}
+                <h1 class="text-5xl font-bold mb-6">Welcome Back to TAU Agrostudies!</h1>
+                <p class="text-xl mb-8">Continue your journey in agricultural excellence</p>
+                <div class="flex gap-4 justify-center">
+                    <a href="{% url 'applicants:dashboard' %}" class="bg-white text-[#4CAF50] px-8 py-3 rounded-lg hover:bg-[#E8F5E9] transition-all transform hover:scale-105">
+                        Go to Dashboard
+                    </a>
+                </div>
+            {% else %}
+                <h1 class="text-5xl font-bold mb-6">Welcome to TAU Agrostudies</h1>
+                <p class="text-xl mb-8">Cultivating Tomorrow's Agricultural Leaders Through Global Excellence</p>
+                <div class="flex gap-4 justify-center">
+                    <a href="{% url 'applicants:register' %}" class="bg-white text-[#4CAF50] px-8 py-3 rounded-lg hover:bg-[#E8F5E9] transition-all transform hover:scale-105">
+                        Start Your Journey
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Call to Action -->
+    {% if not user.is_authenticated %}
+    <div class="bg-[#4CAF50] text-white rounded-lg p-12 text-center my-16">
+        <h2 class="text-3xl font-bold mb-4">Ready to Start Your Agricultural Journey?</h2>
+        <p class="mb-8">Join our global community of agricultural innovators and leaders</p>
+        <a href="{% url 'applicants:register' %}" class="bg-white text-[#4CAF50] px-8 py-3 rounded-lg hover:bg-[#E8F5E9] transition-all inline-block">
+            Apply Now
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

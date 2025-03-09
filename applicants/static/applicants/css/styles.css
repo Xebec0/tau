@@ -1,0 +1,339 @@
+/* Form Container */
+.form-container {
+    max-width: 28rem;
+    margin: 0 auto;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Floating Label Input Groups */
+.input-group {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #A5D6A7;
+    border-radius: 0.5rem;
+    background-color: white;
+    transition: all 0.2s ease;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+
+.input-group label {
+    position: absolute;
+    left: 1rem;
+    top: 0.75rem;
+    color: #6B7280;
+    transition: all 0.2s ease;
+    pointer-events: none;
+    background-color: white;
+    padding: 0 0.25rem;
+}
+
+.input-group input:focus ~ label,
+.input-group input:not(:placeholder-shown) ~ label,
+.input-group select:focus ~ label,
+.input-group select:not(:placeholder-shown) ~ label {
+    top: -0.75rem;
+    font-size: 0.875rem;
+    color: #4CAF50;
+}
+
+/* Submit Button */
+.submit-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    font-size: 1.125rem;
+    transition: all 0.2s ease;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
+    transform: scale(1.02);
+}
+
+/* Messages */
+.error-message {
+    color: #EF4444;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    padding-left: 0.25rem;
+}
+
+.success-message {
+    background-color: #A5D6A7;
+    color: #1B5E20;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Dashboard */
+.dashboard-container {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+
+.dashboard-title {
+    color: #795548;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+/* Status Cards */
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.status-card {
+    background-color: #F5F5F5;
+    padding: 1rem;
+    border-radius: 0.5rem;
+}
+
+.card-title {
+    color: #4CAF50;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+/* Status Indicators */
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    background-color: #FFEB3B;
+    border-radius: 50%;
+}
+
+/* Document List */
+.document-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.document-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Quick Actions */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.action-button {
+    padding: 0.75rem;
+    background-color: #A5D6A7;
+    color: #1B5E20;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.action-button:hover {
+    background-color: #4CAF50;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Applicant List */
+.applicant-container {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.search-bar {
+    display: flex;
+    gap: 1rem;
+    background-color: #F5F5F5;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    width: 100%;
+    max-width: 400px;
+}
+
+.search-input {
+    border: none;
+    background: transparent;
+    width: 100%;
+    padding: 0.5rem;
+    color: #795548;
+}
+
+.applicant-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.applicant-card {
+    background-color: #F5F5F5;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    transition: transform 0.2s ease;
+}
+
+.applicant-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.applicant-name {
+    color: #4CAF50;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.applicant-details {
+    color: #795548;
+    font-size: 0.875rem;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+}
+
+.status-pending {
+    background-color: #FFEB3B;
+    color: #795548;
+}
+
+.status-approved {
+    background-color: #A5D6A7;
+    color: #1B5E20;
+}
+
+.status-rejected {
+    background-color: #FFCDD2;
+    color: #B71C1C;
+}
+/* Landing Page Enhancements */
+.hero-section {
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::after {
+    content: '';
+    position: absolute;
+    bottom: -50px;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(to bottom right, transparent 49%, white 50%);
+}
+
+.program-card img {
+    transition: transform 0.3s ease;
+}
+
+.program-card:hover img {
+    transform: scale(1.05);
+}
+
+.stats-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #4CAF50;
+    margin-bottom: 0.5rem;
+}
+
+.stats-label {
+    color: #666;
+    font-size: 1.125rem;
+}
+
+/* Farm Listings Styles */
+.farm-image-wrapper {
+    height: 200px;
+    overflow: hidden;
+    border-radius: 8px 8px 0 0;
+}
+
+.farm-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.detail-item i {
+    width: 20px;
+}
+
+.applicant-card {
+    border: none;
+    border-radius: 8px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.applicant-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.applicant-card:hover .farm-image {
+    transform: scale(1.05);
+}
+
+.card-content {
+    background: white;
+    border-radius: 0 0 8px 8px;
+}

@@ -1,0 +1,125 @@
+{% extends 'applicants/base.html' %}
+
+{% block title %}Admin Registration{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="form-container">
+                <!-- Header -->
+                <div class="text-center mb-4">
+                    <h2 class="dashboard-title">Admin Registration</h2>
+                    <p class="text-muted">Create your administrator account</p>
+                </div>
+
+                <!-- Registration Form -->
+                <form method="post" action="{% url 'applicants:register_admin' %}" class="space-y-4" id="admin-registration-form">
+                    {% csrf_token %}
+                   
+                    <!-- Username Field -->
+                    <div class="input-group">
+                        <input type="text" name="username" id="id_username" required
+                               placeholder=" " oninput="hideError(this)">
+                        <label for="id_username">Username</label>
+                        <div id="username-error" class="error-message" style="display: none;">
+                            {{ form.username.errors }}
+                        </div>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="input-group">
+                        <input type="email" name="email" id="id_email" required
+                               placeholder=" " oninput="hideError(this)">
+                        <label for="id_email">Email Address</label>
+                        <div id="email-error" class="error-message" style="display: none;">
+                            {{ form.email.errors }}
+                        </div>
+                    </div>
+
+                    <!-- Phone Number Field -->
+                    <div class="input-group">
+                        <input type="tel" name="phone_number" id="id_phone_number" required
+                               placeholder=" " pattern="[0-9]{10}"
+                               title="Please enter a 10-digit phone number"
+                               oninput="hideError(this)">
+                        <label for="id_phone_number">Phone Number</label>
+                        <div id="phone_number-error" class="error-message" style="display: none;">
+                            {{ form.phone_number.errors }}
+                        </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="input-group">
+                        <input type="password" name="password1" id="id_password1" required
+                               placeholder=" " oninput="hideError(this)">
+                        <label for="id_password1">Password</label>
+                        <div id="password1-error" class="error-message" style="display: none;">
+                            {{ form.password1.errors }}
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password Field -->
+                    <div class="input-group">
+                        <input type="password" name="password2" id="id_password2" required
+                               placeholder=" " oninput="hideError(this)">
+                        <label for="id_password2">Confirm Password</label>
+                        <div id="password2-error" class="error-message" style="display: none;">
+                            {{ form.password2.errors }}
+                        </div>
+                    </div>
+
+                    <!-- Global Form Errors -->
+                    {% if form.non_field_errors %}
+                        <div class="error-message text-center">
+                            {{ form.non_field_errors }}
+                        </div>
+                    {% endif %}
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="submit-btn">
+                        Create Admin Account
+                    </button>
+
+                    <!-- Login Link -->
+                    <div class="text-center mt-3">
+                        <p class="text-muted">
+                            Already have an account?
+                            <a href="{% url 'applicants:login' %}" class="text-[#4CAF50] hover:text-[#45a049] font-medium">Login</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function hideError(inputElement) {
+    // Get the corresponding error message div
+    const errorDiv = document.getElementById(inputElement.id + '-error');
+    
+    // Hide the error message if the input has a value
+    if (inputElement.value.trim() !== '') {
+        errorDiv.style.display = 'none';
+    } else {
+        errorDiv.style.display = 'block';
+    }
+}
+
+// Optional: Handle form submission to show errors if needed
+document.getElementById('admin-registration-form').addEventListener('submit', function(event) {
+    const inputs = this.querySelectorAll('input[required]');
+    inputs.forEach(input => {
+        const errorDiv = document.getElementById(input.id + '-error');
+        if (input.value.trim() === '') {
+            errorDiv.style.display = 'block';
+        } else {
+            errorDiv.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
