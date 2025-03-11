@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.utils import timezone
 from django.core.files.storage import FileSystemStorage
 from django.db.models import Q
-
+from django.db import transaction, IntegrityError
 from .models import Applicant, Farm, FarmApplication
 from .forms import (
     ApplicantRegistrationForm,
@@ -29,20 +29,26 @@ def register_applicant(request):
     if request.method == 'POST':
         form = ApplicantRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            # Create associated Applicant profile
-            Applicant.objects.create(
-                user=user,
-                full_name=form.cleaned_data['full_name'],
-                student_number=form.cleaned_data['student_number'],
-                date_of_birth=form.cleaned_data['date_of_birth'],
-                gender=form.cleaned_data['gender'],
-                country=form.cleaned_data['country'],
-                phone_number=form.cleaned_data['phone_number']
-            )
-            login(request, user)
-            messages.success(request, 'Registration successful!')
-            return redirect('applicants:dashboard')
+            try:
+                with transaction.atomic():
+                    user = form.save(commit=False)
+                    user.save()
+                    
+                    Applicant.objects.create(
+                        user=user,
+                        full_name=form.cleaned_data['full_name'],
+                        student_number=form.cleaned_data['student_number'],
+                        date_of_birth=form.cleaned_data['date_of_birth'],
+                        gender=form.cleaned_data['gender'],
+                        country=form.cleaned_data['country'],
+                        phone_number=form.cleaned_data['phone_number']
+                    )
+                    
+                login(request, user)
+                messages.success(request, 'Registration successful!')
+                return redirect('applicants:dashboard')
+            except IntegrityError:
+                messages.error(request, 'This user already has an applicant profile.')
     else:
         form = ApplicantRegistrationForm()
     
@@ -72,14 +78,18 @@ def dashboard(request):
     if request.user.is_staff or request.user.is_superuser:
         return redirect('applicants:admin_dashboard')
     
-    applicant = request.user.applicant
-    farm_applications = FarmApplication.objects.filter(applicant=applicant)
-    
-    context = {
-        'applicant': applicant,
-        'farm_applications': farm_applications,
-    }
-    return render(request, 'applicants/dashboard.html', context)
+    try:
+        applicant = request.user.applicant
+        farm_applications = FarmApplication.objects.filter(applicant=applicant)
+        
+        context = {
+            'applicant': applicant,
+            'farm_applications': farm_applications,
+        }
+        return render(request, 'applicants/dashboard.html', context)
+    except:
+        messages.error(request, 'Please complete your applicant profile first.')
+        return redirect('applicants:register_applicant')
 
 @login_required
 @user_passes_test(is_admin)
