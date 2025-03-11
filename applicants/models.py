@@ -14,11 +14,13 @@ class Applicant(models.Model):
         ('rejected', 'Rejected')
     ]
 
-    student_number = models.CharField(max_length=20, unique=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=100)
+    student_number = models.CharField(max_length=20, unique=True)
     date_of_birth = models.DateField()
     gender = models.CharField(max_length=6, choices=GENDER_CHOICES)
+    country = models.CharField(max_length=100, default='Philippines')
+    phone_number = models.CharField(max_length=20, default='')
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     resume = models.FileField(upload_to='resumes/', null=True, blank=True)
@@ -28,7 +30,6 @@ class Applicant(models.Model):
 
     def __str__(self):
         return f"{self.full_name} ({self.student_number})"
-
 class Farm(models.Model):
     name = models.CharField(max_length=200)
     location = models.CharField(max_length=200)

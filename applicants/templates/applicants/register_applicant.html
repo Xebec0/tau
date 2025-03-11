@@ -1,7 +1,24 @@
 {% extends 'applicants/base.html' %}
-
 {% block content %}
 <div class="container py-5">
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-4 p-3 {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %} rounded">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if form.errors %}
+        <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">
+            <ul>
+                {% for field, errors in form.errors.items %}
+                    <li>{{ field|title }}: {{ errors|join:", " }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
     <div class="row justify-content-center">
         <div class="col-md-5">
             <div class="bg-white p-6 rounded-lg shadow-lg">
@@ -10,34 +27,33 @@
                 <form method="post" action="{% url 'applicants:register_applicant' %}" id="registration-form" class="space-y-3">
                     {% csrf_token %}
 
-                    <!-- First and Last Name -->
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="input-group">
-                            <input type="text" name="first_name" id="id_first_name"
-                                   class="p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]"
-                                   placeholder="First Name" required 
-                                   pattern="[A-Za-z\s]+" 
-                                   title="First name should contain only letters"
-                                   oninput="validateField(this)">
-                            <div class="error-message text-red-500 text-sm mt-1" id="first_name-error"></div>
-                        </div>
-                        <div class="input-group">
-                            <input type="text" name="last_name" id="id_last_name"
-                                   class="p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]"
-                                   placeholder="Last Name" required 
-                                   pattern="[A-Za-z\s]+" 
-                                   title="Last name should contain only letters"
-                                   oninput="validateField(this)">
-                            <div class="error-message text-red-500 text-sm mt-1" id="last_name-error"></div>
-                        </div>
+                    <!-- Full Name -->
+                    <div class="input-group">
+                        <input type="text" name="full_name" id="id_full_name"
+                               class="p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]"
+                               placeholder="Full Name" required 
+                               pattern="[A-Za-z\s]+" 
+                               title="Full name must contain only letters and spaces"
+                               oninput="validateField(this)">
+                        <div class="error-message text-red-500 text-sm mt-1" id="full_name-error"></div>
+                    </div>
+
+                    <!-- Student Number -->
+                    <div class="input-group">
+                        <input type="text" name="student_number" id="id_student_number"
+                               class="p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]"
+                               placeholder="Student Number" required 
+                               pattern="[A-Z0-9]{6,10}"
+                               title="Student number must be 6-10 uppercase letters or numbers"
+                               oninput="validateField(this)">
+                        <div class="error-message text-red-500 text-sm mt-1" id="student_number-error"></div>
                     </div>
 
                     <!-- Date of Birth -->
                     <div class="input-group">
                         <input type="date" name="date_of_birth" id="id_date_of_birth"
                                class="p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]"
-                               required 
-                               oninput="validateDateOfBirth(this)">
+                               required>
                         <div class="error-message text-red-500 text-sm mt-1" id="date_of_birth-error"></div>
                     </div>
 
@@ -52,7 +68,7 @@
                             <span class="text-sm">Female</span>
                         </label>
                     </div>
-
+                    
                     <!-- Email -->
                     <div class="input-group">
                         <input type="email" name="email" id="id_email"
@@ -67,8 +83,8 @@
                         <input type="tel" name="phone_number" id="id_phone_number"
                                class="p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]"
                                placeholder="Phone Number" required 
-                               pattern="[0-9]{10,15}"
-                               title="Phone number should be 10-15 digits"
+                               pattern="\+?1?\d{9,15}"
+                               title="Phone number must be a valid international format"
                                oninput="validatePhoneNumber(this)">
                         <div class="error-message text-red-500 text-sm mt-1" id="phone_number-error"></div>
                     </div>
@@ -90,9 +106,8 @@
                         <input type="text" name="username" id="id_username"
                                class="p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]"
                                placeholder="Username" required 
-                               minlength="4" maxlength="20"
-                               pattern="[A-Za-z0-9_]+"
-                               title="Username should be 4-20 characters, letters, numbers, or underscore"
+                               pattern="[a-zA-Z0-9_]{4,20}"
+                               title="Username must be 4-20 characters, using only letters, numbers, and underscores"
                                oninput="validateUsername(this)">
                         <div class="error-message text-red-500 text-sm mt-1" id="username-error"></div>
                     </div>
@@ -104,6 +119,9 @@
                                placeholder="Password" required 
                                minlength="8"
                                oninput="validatePassword(this)">
+                        <div class="text-sm text-gray-600 mt-1">
+                            Password must be at least 8 characters with uppercase, lowercase, and numbers
+                        </div>
                         <div class="error-message text-red-500 text-sm mt-1" id="password1-error"></div>
                     </div>
 
@@ -148,9 +166,9 @@ function validateEmail(input) {
 
 function validatePhoneNumber(input) {
     const errorElement = document.getElementById('phone_number-error');
-    const phoneRegex = /^[0-9]{10,15}$/;
+    const phoneRegex = /^\+?1?\d{9,15}$/;
     if (!phoneRegex.test(input.value)) {
-        errorElement.textContent = 'Phone number should be 10-15 digits';
+        errorElement.textContent = 'Please enter a valid phone number';
     } else {
         errorElement.textContent = '';
     }
@@ -158,9 +176,9 @@ function validatePhoneNumber(input) {
 
 function validateUsername(input) {
     const errorElement = document.getElementById('username-error');
-    const usernameRegex = /^[A-Za-z0-9_]{4,20}$/;
+    const usernameRegex = /^[a-zA-Z0-9_]{4,20}$/;
     if (!usernameRegex.test(input.value)) {
-        errorElement.textContent = 'Username should be 4-20 characters, letters, numbers, or underscore';
+        errorElement.textContent = 'Username must be 4-20 characters, using only letters, numbers, and underscores';
     } else {
         errorElement.textContent = '';
     }
@@ -168,17 +186,29 @@ function validateUsername(input) {
 
 function validatePassword(input) {
     const errorElement = document.getElementById('password1-error');
-    if (input.value.length < 8) {
-        errorElement.textContent = 'Password must be at least 8 characters long';
-    } else {
-        errorElement.textContent = '';
+    const password = input.value;
+    let errors = [];
+    
+    if (password.length < 8) {
+        errors.push('Password must be at least 8 characters long');
     }
+    if (!/[A-Z]/.test(password)) {
+        errors.push('Password must contain at least one uppercase letter');
+    }
+    if (!/[a-z]/.test(password)) {
+        errors.push('Password must contain at least one lowercase letter');
+    }
+    if (!/[0-9]/.test(password)) {
+        errors.push('Password must contain at least one number');
+    }
+    
+    errorElement.textContent = errors.join('. ');
 }
 
 function validateConfirmPassword(input) {
-    const passwordInput = document.getElementById('id_password1');
     const errorElement = document.getElementById('password2-error');
-    if (input.value !== passwordInput.value) {
+    const password1 = document.getElementById('id_password1').value;
+    if (input.value !== password1) {
         errorElement.textContent = 'Passwords do not match';
     } else {
         errorElement.textContent = '';

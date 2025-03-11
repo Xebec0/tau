@@ -29,20 +29,24 @@ def register_applicant(request):
     if request.method == 'POST':
         form = ApplicantRegistrationForm(request.POST)
         if form.is_valid():
-            try:
-                user = form.save()
-                messages.success(request, 'Registration successful! Please log in.')
-                return redirect('applicants:login')
-            except Exception as e:
-                messages.error(request, f'Registration failed: {str(e)}')
-        else:
-            print(form.errors)  # Debugging
+            user = form.save()
+            # Create associated Applicant profile
+            Applicant.objects.create(
+                user=user,
+                full_name=form.cleaned_data['full_name'],
+                student_number=form.cleaned_data['student_number'],
+                date_of_birth=form.cleaned_data['date_of_birth'],
+                gender=form.cleaned_data['gender'],
+                country=form.cleaned_data['country'],
+                phone_number=form.cleaned_data['phone_number']
+            )
+            login(request, user)
+            messages.success(request, 'Registration successful!')
+            return redirect('applicants:dashboard')
     else:
         form = ApplicantRegistrationForm()
     
     return render(request, 'applicants/register_applicant.html', {'form': form})
-
-
 def register_admin(request):
     if request.method == 'POST':
         form = AdminRegistrationForm(request.POST)
