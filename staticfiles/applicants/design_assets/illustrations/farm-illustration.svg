@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150" viewBox="0 0 200 150">
+  <!-- Sky -->
+  <rect width="200" height="80" fill="#87CEEB"/>
+  
+  <!-- Sun -->
+  <circle cx="160" cy="30" r="15" fill="#FFD700"/>
+  
+  <!-- Ground -->
+  <rect y="80" width="200" height="70" fill="#8B4513"/>
+  
+  <!-- Grass -->
+  <rect y="80" width="200" height="10" fill="#7CFC00"/>
+  
+  <!-- Barn -->
+  <rect x="30" y="40" width="60" height="50" fill="#FF0000"/>
+  <polygon points="30,40 60,10 90,40" fill="#8B0000"/>
+  <rect x="50" y="60" width="20" height="30" fill="#FFFFFF"/>
+  
+  <!-- Silo -->
+  <rect x="100" y="30" width="20" height="60" fill="#D3D3D3"/>
+  <path d="M100,30 Q110,10 120,30" fill="#D3D3D3"/>
+  
+  <!-- Fence -->
+  <line x1="10" y1="90" x2="190" y2="90" stroke="#8B4513" stroke-width="3"/>
+  <line x1="20" y1="80" x2="20" y2="90" stroke="#8B4513" stroke-width="3"/>
+  <line x1="40" y1="80" x2="40" y2="90" stroke="#8B4513" stroke-width="3"/>
+  <line x1="60" y1="80" x2="60" y2="90" stroke="#8B4513" stroke-width="3"/>
+  <line x1="80" y1="80" x2="80" y2="90" stroke="#8B4513" stroke-width="3"/>
+  <line x1="100" y1="80" x2="100" y2="90" stroke="#8B4513" stroke-width="3"/>
+  <line x1="120" y1="80" x2="120" y2="90" stroke="#8B4513" stroke-width="3"/>
+  <line x1="140" y1="80" x2="140" y2="90" stroke="#8B4513" stroke-width="3"/>
+  <line x1="160" y1="80" x2="160" y2="90" stroke="#8B4513" stroke-width="3"/>
+  <line x1="180" y1="80" x2="180" y2="90" stroke="#8B4513" stroke-width="3"/>
+  
+  <!-- Crops -->
+  <rect x="130" y="70" width="60" height="10" fill="#006400"/>
+  <line x1="140" y1="60" x2="140" y2="70" stroke="#006400" stroke-width="1"/>
+  <line x1="150" y1="60" x2="150" y2="70" stroke="#006400" stroke-width="1"/>
+  <line x1="160" y1="60" x2="160" y2="70" stroke="#006400" stroke-width="1"/>
+  <line x1="170" y1="60" x2="170" y2="70" stroke="#006400" stroke-width="1"/>
+  <line x1="180" y1="60" x2="180" y2="70" stroke="#006400" stroke-width="1"/>
+</svg> 
