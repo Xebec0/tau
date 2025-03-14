@@ -1,0 +1,153 @@
+{% extends 'applicants/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header Section with Pattern Background -->
+    <div class="bg-white rounded-lg shadow-lg p-8 mb-8 pattern-bg relative overflow-hidden">
+        <div class="flex items-center justify-between relative z-10">
+            <div>
+                <h1 class="text-4xl font-bold text-[#795548] mb-2">Privacy Policy</h1>
+                <p class="text-gray-600 text-lg">Last Updated: June 15, 2023</p>
+            </div>
+            <div>
+                <a href="{% url 'applicants:dashboard' %}" 
+                   class="inline-flex items-center px-4 py-2 bg-white border border-[#795548] text-[#795548] rounded-lg hover:bg-[#795548] hover:text-white transition-all duration-300 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Privacy Policy Content -->
+    <div class="bg-white rounded-lg shadow-lg p-8">
+        <div class="prose max-w-none">
+            <h2 class="text-2xl font-bold text-[#795548] mb-4">Introduction</h2>
+            <p class="mb-4">
+                Tau Agrostudies System Portal ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services.
+            </p>
+            <p class="mb-6">
+                Please read this Privacy Policy carefully. By accessing or using our platform, you acknowledge that you have read, understood, and agree to be bound by all the terms outlined in this Privacy Policy.
+            </p>
+
+            <h2 class="text-2xl font-bold text-[#795548] mb-4">Information We Collect</h2>
+            <p class="mb-4">We may collect information about you in various ways, including:</p>
+            
+            <h3 class="text-xl font-semibold text-[#795548] mb-3">Personal Data</h3>
+            <p class="mb-4">
+                When you register for an account or apply to our programs, we collect personal information such as:
+            </p>
+            <ul class="list-disc pl-6 mb-4">
+                <li>Full name</li>
+                <li>Date of birth</li>
+                <li>Contact information (email address, phone number, physical address)</li>
+                <li>Nationality and passport information</li>
+                <li>Educational background</li>
+                <li>Work experience</li>
+                <li>Profile photos</li>
+                <li>Emergency contact information</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-[#795548] mb-3">Documents and Uploads</h3>
+            <p class="mb-4">
+                We collect documents you upload as part of your application, including:
+            </p>
+            <ul class="list-disc pl-6 mb-4">
+                <li>Passport copies</li>
+                <li>Educational certificates</li>
+                <li>Recommendation letters</li>
+                <li>Medical certificates</li>
+                <li>Other supporting documents</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-[#795548] mb-3">Usage Data</h3>
+            <p class="mb-4">
+                We automatically collect certain information when you visit, use, or navigate our platform. This information may include:
+            </p>
+            <ul class="list-disc pl-6 mb-6">
+                <li>IP address</li>
+                <li>Browser and device information</li>
+                <li>Operating system</li>
+                <li>Pages visited and features used</li>
+                <li>Time and date of your visits</li>
+                <li>Referring website addresses</li>
+            </ul>
+
+            <h2 class="text-2xl font-bold text-[#795548] mb-4">How We Use Your Information</h2>
+            <p class="mb-4">We may use the information we collect for various purposes, including:</p>
+            <ul class="list-disc pl-6 mb-6">
+                <li>Processing and evaluating your application</li>
+                <li>Matching you with appropriate farm placements</li>
+                <li>Communicating with you about your application status</li>
+                <li>Providing customer support</li>
+                <li>Sending administrative information</li>
+                <li>Sending program updates and marketing communications</li>
+                <li>Improving our website and services</li>
+                <li>Generating anonymized statistical data</li>
+                <li>Preventing fraudulent activity and enhancing security</li>
+                <li>Complying with legal obligations</li>
+            </ul>
+
+            <h2 class="text-2xl font-bold text-[#795548] mb-4">Information Sharing and Disclosure</h2>
+            <p class="mb-4">We may share your information with:</p>
+            <ul class="list-disc pl-6 mb-6">
+                <li><strong>Partner Farms:</strong> Information necessary for placement consideration and internship arrangements.</li>
+                <li><strong>Service Providers:</strong> Third parties that perform services on our behalf, such as payment processing, data analysis, email delivery, and hosting services.</li>
+                <li><strong>Educational Institutions:</strong> For verification of academic credentials and program coordination.</li>
+                <li><strong>Government Authorities:</strong> When required by law, such as for visa processing or compliance with legal obligations.</li>
+                <li><strong>Business Partners:</strong> With your consent, we may share your information with our business partners to offer certain products or services.</li>
+            </ul>
+
+            <h2 class="text-2xl font-bold text-[#795548] mb-4">Data Security</h2>
+            <p class="mb-6">
+                We implement appropriate technical and organizational measures to protect the security of your personal information. However, please be aware that no method of transmission over the Internet or electronic storage is 100% secure, and we cannot guarantee absolute security.
+            </p>
+
+            <h2 class="text-2xl font-bold text-[#795548] mb-4">Your Data Protection Rights</h2>
+            <p class="mb-4">Depending on your location, you may have the following rights:</p>
+            <ul class="list-disc pl-6 mb-6">
+                <li><strong>Access:</strong> You can request copies of your personal data.</li>
+                <li><strong>Rectification:</strong> You can request that we correct inaccurate information.</li>
+                <li><strong>Erasure:</strong> You can request that we delete your personal data in certain circumstances.</li>
+                <li><strong>Restriction:</strong> You can request that we restrict the processing of your data.</li>
+                <li><strong>Data Portability:</strong> You can request that we transfer your data to another organization.</li>
+                <li><strong>Objection:</strong> You can object to our processing of your personal data.</li>
+            </ul>
+
+            <h2 class="text-2xl font-bold text-[#795548] mb-4">Cookies and Tracking Technologies</h2>
+            <p class="mb-6">
+                We use cookies and similar tracking technologies to collect and track information about your browsing activities on our website. You can set your browser to refuse all or some browser cookies, but this may affect your ability to access certain features of our platform.
+            </p>
+
+            <h2 class="text-2xl font-bold text-[#795548] mb-4">Third-Party Websites</h2>
+            <p class="mb-6">
+                Our website may contain links to third-party websites. We have no control over and assume no responsibility for the content, privacy policies, or practices of any third-party sites or services.
+            </p>
+
+            <h2 class="text-2xl font-bold text-[#795548] mb-4">Children's Privacy</h2>
+            <p class="mb-6">
+                Our services are not intended for individuals under the age of 18. We do not knowingly collect personal information from children. If you are a parent or guardian and believe your child has provided us with personal information, please contact us.
+            </p>
+
+            <h2 class="text-2xl font-bold text-[#795548] mb-4">Changes to This Privacy Policy</h2>
+            <p class="mb-6">
+                We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date. You are advised to review this Privacy Policy periodically for any changes.
+            </p>
+
+            <h2 class="text-2xl font-bold text-[#795548] mb-4">Contact Us</h2>
+            <p class="mb-4">
+                If you have any questions about this Privacy Policy, please contact us at:
+            </p>
+            <div class="bg-gray-50 p-4 rounded-lg mb-6">
+                <p><strong>Tau Agrostudies System Portal</strong></p>
+                <p>Email: privacy@tauagrostudies.org</p>
+                <p>Phone: +972-3-123-4567</p>
+                <p>Address: 123 Agricultural Avenue, Tel Aviv, Israel</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

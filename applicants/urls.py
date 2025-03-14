@@ -41,6 +41,10 @@ urlpatterns = [
     path('profile/update/', views.update_profile, name='update_profile'),
     path('support/', views.contact_support, name='contact_support'),
     
+    # Privacy Policy and Terms of Service
+    path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
+    path('terms-of-service/', views.terms_of_service, name='terms_of_service'),
+    
     # This must be last as it's a catch-all pattern
     path('<str:student_number>/', views.applicant_detail, name='applicant_detail'),
     path('delete/<str:student_number>/', views.delete_applicant, name='delete_applicant'),

@@ -595,3 +595,16 @@ def update_application_status(request, applicant_id):
             messages.error(request, 'Invalid status value')
             
     return redirect('applicants:review_application', identifier=applicant_id)
+
+def privacy_policy(request):
+    """
+    Display the privacy policy page.
+    """
+    return render(request, 'applicants/privacy_policy.html')
+
+def terms_of_service(request):
+    """
+    Display the terms of service page.
+    """
+    return render(request, 'applicants/terms_of_service.html')
+

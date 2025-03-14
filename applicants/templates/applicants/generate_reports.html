@@ -443,13 +443,13 @@
         
         <!-- Enhanced Export Options -->
         <div class="mt-8 flex justify-end space-x-4">
-            <button class="inline-flex items-center px-4 py-2 bg-white border-2 border-[#795548] text-[#795548] rounded-lg hover:bg-[#795548] hover:text-white transition-all duration-300">
+            <button onclick="exportToPDF()" class="inline-flex items-center px-4 py-2 bg-white border-2 border-[#795548] text-[#795548] rounded-lg hover:bg-[#795548] hover:text-white transition-all duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
                 Export as PDF
             </button>
-            <button class="inline-flex items-center px-4 py-2 bg-white border-2 border-[#795548] text-[#795548] rounded-lg hover:bg-[#795548] hover:text-white transition-all duration-300">
+            <button onclick="exportToCSV()" class="inline-flex items-center px-4 py-2 bg-white border-2 border-[#795548] text-[#795548] rounded-lg hover:bg-[#795548] hover:text-white transition-all duration-300">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
@@ -499,5 +499,172 @@ document.addEventListener('DOMContentLoaded', function() {
         toggleSection('farm-status-section');
     }
 });
+
+// PDF Export functionality
+function exportToPDF() {
+    // Add script for html2pdf if not already included
+    if (!window.html2pdf) {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+        script.onload = generatePDF;
+        document.head.appendChild(script);
+    } else {
+        generatePDF();
+    }
+}
+
+function generatePDF() {
+    // Show all sections before generating PDF
+    const sections = document.querySelectorAll('[id$="-section"]');
+    sections.forEach(section => {
+        section.classList.remove('hidden');
+        section.style.maxHeight = 'none';
+    });
+    
+    // Get the content to export
+    const element = document.querySelector('.container');
+    
+    // Configure PDF options
+    const opt = {
+        margin: [10, 10],
+        filename: 'tau_agrostudies_report_{{ report_type }}.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    
+    // Generate PDF
+    html2pdf().set(opt).from(element).save().then(() => {
+        // Restore hidden sections after PDF is generated
+        sections.forEach(section => {
+            if (!section.id.includes(reportType === 'applicants' ? 'status' : 'farm-status')) {
+                section.classList.add('hidden');
+                section.style.maxHeight = '0px';
+            }
+        });
+    });
+}
+
+// CSV Export functionality
+function exportToCSV() {
+    const reportType = '{{ report_type }}';
+    let csvContent = '';
+    let filename = '';
+    
+    if (reportType === 'applicants') {
+        // Export applicant data
+        filename = 'applicant_reports.csv';
+        
+        // Add headers for applicant status
+        csvContent = 'Status,Count,Percentage\n';
+        
+        // Get data from status table
+        const statusTable = document.querySelector('#status-section table tbody');
+        if (statusTable) {
+            statusTable.querySelectorAll('tr').forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 2) {
+                    const status = cells[0].textContent.trim();
+                    const count = cells[1].textContent.trim();
+                    const percentage = cells[2].textContent.trim().split('%')[0].trim();
+                    csvContent += `${status},${count},${percentage}%\n`;
+                }
+            });
+        }
+        
+        // Add a separator
+        csvContent += '\nCountry,Count,Percentage\n';
+        
+        // Get data from country table
+        const countryTable = document.querySelector('#country-section table tbody');
+        if (countryTable) {
+            countryTable.querySelectorAll('tr').forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 2) {
+                    const country = cells[0].textContent.trim();
+                    const count = cells[1].textContent.trim();
+                    const percentage = cells[2].textContent.trim().split('%')[0].trim();
+                    csvContent += `${country},${count},${percentage}%\n`;
+                }
+            });
+        }
+        
+        // Add gender data
+        csvContent += '\nGender,Count,Percentage\n';
+        const genderTable = document.querySelector('#gender-section table tbody');
+        if (genderTable) {
+            genderTable.querySelectorAll('tr').forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 2) {
+                    const gender = cells[0].textContent.trim();
+                    const count = cells[1].textContent.trim();
+                    const percentage = cells[2].textContent.trim().split('%')[0].trim();
+                    csvContent += `${gender},${count},${percentage}%\n`;
+                }
+            });
+        }
+        
+        // Add age group data
+        csvContent += '\nAge Group,Count,Percentage\n';
+        const ageTable = document.querySelector('#age-section table tbody');
+        if (ageTable) {
+            ageTable.querySelectorAll('tr').forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 2) {
+                    const ageGroup = cells[0].textContent.trim();
+                    const count = cells[1].textContent.trim();
+                    const percentage = cells[2].textContent.trim().split('%')[0].trim();
+                    csvContent += `${ageGroup},${count},${percentage}%\n`;
+                }
+            });
+        }
+    } else {
+        // Export farm data
+        filename = 'farm_reports.csv';
+        
+        // Add headers for farm status
+        csvContent = 'Status,Count,Percentage\n';
+        
+        // Get data from farm status table
+        const farmStatusTable = document.querySelector('#farm-status-section table tbody');
+        if (farmStatusTable) {
+            farmStatusTable.querySelectorAll('tr').forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 2) {
+                    const status = cells[0].textContent.trim();
+                    const count = cells[1].textContent.trim();
+                    const percentage = cells[2].textContent.trim().split('%')[0].trim();
+                    csvContent += `${status},${count},${percentage}%\n`;
+                }
+            });
+        }
+        
+        // Add farm list data
+        csvContent += '\nFarm Name,Applications,Percentage\n';
+        const farmListTable = document.querySelector('#farm-list-section table tbody');
+        if (farmListTable) {
+            farmListTable.querySelectorAll('tr').forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 2) {
+                    const farmName = cells[0].textContent.trim();
+                    const count = cells[1].textContent.trim();
+                    const percentage = cells[2].textContent.trim().split('%')[0].trim();
+                    csvContent += `${farmName},${count},${percentage}%\n`;
+                }
+            });
+        }
+    }
+    
+    // Create and download the CSV file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
 </script>
 {% endblock %} 
