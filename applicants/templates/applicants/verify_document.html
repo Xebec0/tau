@@ -1,0 +1,165 @@
+{% extends 'applicants/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header Section -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div class="flex items-center justify-between">
+            <h1 class="text-3xl font-bold text-[#795548]">Verify Documents</h1>
+            <a href="{% url 'applicants:view_all_documents' %}" class="text-[#795548] hover:text-[#6d4c41] flex items-center">
+                <span class="text-sm font-semibold">Back to Documents</span>
+            </a>
+        </div>
+        <p class="text-gray-600 mt-2">Applicant: <span class="font-semibold">{{ applicant.full_name }}</span> ({{ applicant.student_number }})</p>
+    </div>
+
+    <!-- Document Verification Form -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <!-- Resume Verification -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-bold text-[#795548] mb-4">Resume Verification</h2>
+            
+            {% if applicant.resume %}
+                <div class="mb-6">
+                    <div class="flex items-center mb-2">
+                        <span class="font-medium">Current Status:</span>
+                        <span class="ml-2 px-3 py-1 rounded-full text-sm font-medium
+                            {% if applicant.resume_status == 'verified' %}bg-green-100 text-green-800
+                            {% elif applicant.resume_status == 'rejected' %}bg-red-100 text-red-800
+                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {{ applicant.resume_status|title }}
+                        </span>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <span class="font-medium">Uploaded:</span>
+                        <span class="ml-2">{{ applicant.resume_uploaded_at|date:"F j, Y, g:i a" }}</span>
+                    </div>
+                    
+                    {% if applicant.resume_verified_at %}
+                    <div class="mb-2">
+                        <span class="font-medium">Last Verified:</span>
+                        <span class="ml-2">{{ applicant.resume_verified_at|date:"F j, Y, g:i a" }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if applicant.resume_verified_by %}
+                    <div class="mb-2">
+                        <span class="font-medium">Verified By:</span>
+                        <span class="ml-2">{{ applicant.resume_verified_by.username }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-4">
+                        <a href="{{ applicant.resume.url }}" target="_blank" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors inline-flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            View Resume
+                        </a>
+                    </div>
+                </div>
+                
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Update Status</label>
+                        <select name="resume_status" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#795548] focus:border-transparent">
+                            {% for status_code, status_label in document_status_choices %}
+                            <option value="{{ status_code }}" {% if applicant.resume_status == status_code %}selected{% endif %}>{{ status_label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Verification Notes</label>
+                        <textarea name="resume_notes" rows="4" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#795548] focus:border-transparent">{{ applicant.resume_verification_notes }}</textarea>
+                    </div>
+                    
+                    <button type="submit" class="bg-[#795548] text-white px-4 py-2 rounded-lg hover:bg-[#6d4c41] transition-colors">
+                        Update Resume Status
+                    </button>
+                </form>
+            {% else %}
+                <div class="p-4 bg-gray-100 rounded-lg text-gray-600">
+                    No resume has been uploaded by this applicant.
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Transcript Verification -->
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <h2 class="text-xl font-bold text-[#795548] mb-4">Transcript Verification</h2>
+            
+            {% if applicant.transcript %}
+                <div class="mb-6">
+                    <div class="flex items-center mb-2">
+                        <span class="font-medium">Current Status:</span>
+                        <span class="ml-2 px-3 py-1 rounded-full text-sm font-medium
+                            {% if applicant.transcript_status == 'verified' %}bg-green-100 text-green-800
+                            {% elif applicant.transcript_status == 'rejected' %}bg-red-100 text-red-800
+                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {{ applicant.transcript_status|title }}
+                        </span>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <span class="font-medium">Uploaded:</span>
+                        <span class="ml-2">{{ applicant.transcript_uploaded_at|date:"F j, Y, g:i a" }}</span>
+                    </div>
+                    
+                    {% if applicant.transcript_verified_at %}
+                    <div class="mb-2">
+                        <span class="font-medium">Last Verified:</span>
+                        <span class="ml-2">{{ applicant.transcript_verified_at|date:"F j, Y, g:i a" }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    {% if applicant.transcript_verified_by %}
+                    <div class="mb-2">
+                        <span class="font-medium">Verified By:</span>
+                        <span class="ml-2">{{ applicant.transcript_verified_by.username }}</span>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-4">
+                        <a href="{{ applicant.transcript.url }}" target="_blank" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors inline-flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            View Transcript
+                        </a>
+                    </div>
+                </div>
+                
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Update Status</label>
+                        <select name="transcript_status" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#795548] focus:border-transparent">
+                            {% for status_code, status_label in document_status_choices %}
+                            <option value="{{ status_code }}" {% if applicant.transcript_status == status_code %}selected{% endif %}>{{ status_label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Verification Notes</label>
+                        <textarea name="transcript_notes" rows="4" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#795548] focus:border-transparent">{{ applicant.transcript_verification_notes }}</textarea>
+                    </div>
+                    
+                    <button type="submit" class="bg-[#795548] text-white px-4 py-2 rounded-lg hover:bg-[#6d4c41] transition-colors">
+                        Update Transcript Status
+                    </button>
+                </form>
+            {% else %}
+                <div class="p-4 bg-gray-100 rounded-lg text-gray-600">
+                    No transcript has been uploaded by this applicant.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

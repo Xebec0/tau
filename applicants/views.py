@@ -468,3 +468,57 @@ def generate_reports(request):
     
     context['report_type'] = report_type
     return render(request, 'applicants/generate_reports.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def view_all_documents(request):
+    """View for admins to see all documents uploaded by applicants"""
+    applicants = Applicant.objects.all().order_by('-created_at')
+    
+    # Filter by document status if requested
+    resume_status = request.GET.get('resume_status')
+    transcript_status = request.GET.get('transcript_status')
+    
+    if resume_status:
+        applicants = applicants.filter(resume_status=resume_status)
+    if transcript_status:
+        applicants = applicants.filter(transcript_status=transcript_status)
+    
+    context = {
+        'applicants': applicants,
+        'document_status_choices': Applicant.DOCUMENT_STATUS_CHOICES,
+        'current_resume_status': resume_status,
+        'current_transcript_status': transcript_status,
+    }
+    return render(request, 'applicants/view_all_documents.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def verify_document(request, applicant_id):
+    """View for admins to verify applicant documents"""
+    applicant = get_object_or_404(Applicant, id=applicant_id)
+    
+    if request.method == 'POST':
+        # Handle resume verification
+        if 'resume_status' in request.POST:
+            applicant.resume_status = request.POST['resume_status']
+            applicant.resume_verification_notes = request.POST.get('resume_notes', '')
+            applicant.resume_verified_at = timezone.now()
+            applicant.resume_verified_by = request.user
+        
+        # Handle transcript verification
+        if 'transcript_status' in request.POST:
+            applicant.transcript_status = request.POST['transcript_status']
+            applicant.transcript_verification_notes = request.POST.get('transcript_notes', '')
+            applicant.transcript_verified_at = timezone.now()
+            applicant.transcript_verified_by = request.user
+        
+        applicant.save()
+        messages.success(request, 'Document verification status updated successfully.')
+        return redirect('applicants:view_all_documents')
+    
+    context = {
+        'applicant': applicant,
+        'document_status_choices': Applicant.DOCUMENT_STATUS_CHOICES,
+    }
+    return render(request, 'applicants/verify_document.html', context)

@@ -31,6 +31,8 @@ urlpatterns = [
     
     # Admin Features
     path('reports/', views.generate_reports, name='generate_reports'),
+    path('documents/view-all/', views.view_all_documents, name='view_all_documents'),
+    path('documents/verify/<int:applicant_id>/', views.verify_document, name='verify_document'),
     
     # User Features
     path('documents/upload/', views.upload_documents, name='upload_documents'),

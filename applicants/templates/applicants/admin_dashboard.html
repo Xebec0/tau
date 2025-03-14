@@ -51,24 +51,44 @@
     <!-- Quick Actions -->
     <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
         <h2 class="text-2xl font-bold text-[#795548] mb-6">Quick Actions</h2>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
             <a href="{% url 'applicants:applicant_list' %}"
-               class="bg-[#795548] text-white p-4 rounded-lg text-center hover:bg-[#6d4c41] transition-all duration-200 transform hover:scale-105">
+               class="flex flex-col items-center justify-center bg-white border-2 border-[#795548] text-[#795548] p-6 rounded-lg text-center hover:bg-[#795548] hover:text-white transition-all duration-200 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
                 <span class="font-semibold">View All Applicants</span>
             </a>
             
             <a href="{% url 'applicants:review_applications_list' %}"
-               class="bg-[#795548] text-white p-4 rounded-lg text-center hover:bg-[#6d4c41] transition-all duration-200 transform hover:scale-105">
+               class="flex flex-col items-center justify-center bg-white border-2 border-[#795548] text-[#795548] p-6 rounded-lg text-center hover:bg-[#795548] hover:text-white transition-all duration-200 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
                 <span class="font-semibold">Review Applications</span>
             </a>
             
+            <a href="{% url 'applicants:view_all_documents' %}"
+               class="flex flex-col items-center justify-center bg-white border-2 border-[#795548] text-[#795548] p-6 rounded-lg text-center hover:bg-[#795548] hover:text-white transition-all duration-200 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                </svg>
+                <span class="font-semibold">View Documents</span>
+            </a>
+            
             <a href="{% url 'applicants:manage_farm_applications' %}"
-               class="bg-[#795548] text-white p-4 rounded-lg text-center hover:bg-[#6d4c41] transition-all duration-200 transform hover:scale-105">
+               class="flex flex-col items-center justify-center bg-white border-2 border-[#795548] text-[#795548] p-6 rounded-lg text-center hover:bg-[#795548] hover:text-white transition-all duration-200 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
                 <span class="font-semibold">Manage Farm Applications</span>
             </a>
 
             <a href="{% url 'applicants:generate_reports' %}"
-               class="bg-[#795548] text-white p-4 rounded-lg text-center hover:bg-[#6d4c41] transition-all duration-200 transform hover:scale-105">
+               class="flex flex-col items-center justify-center bg-white border-2 border-[#795548] text-[#795548] p-6 rounded-lg text-center hover:bg-[#795548] hover:text-white transition-all duration-200 shadow-md">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
                 <span class="font-semibold">Generate Reports</span>
             </a>
         </div>
@@ -125,7 +145,6 @@
             <h2 class="text-2xl font-bold text-[#795548]">Recent Farm Applications</h2>
             <a href="{% url 'applicants:manage_farm_applications' %}" class="text-[#795548] hover:text-[#6d4c41] flex items-center">
                 <span class="text-sm font-semibold">View All</span>
-                <span class="material-icons ml-1">arrow_forward</span>
             </a>
         </div>
         
