@@ -1,77 +1,117 @@
 {% extends 'applicants/base.html' %}
+{% load static %}
 
 {% block content %}
 <div class="dashboard-container">
-    <div class="flex items-center mb-6">
-        <!-- Profile Photo -->
-        <div class="mr-4">
-            {% if user.applicant.profile_photo %}
-            <img src="{{ user.applicant.profile_photo.url }}" alt="Profile Photo" class="rounded-full w-20 h-20 object-cover border-2 border-[#795548]">
-            {% else %}
-            <div class="rounded-full w-20 h-20 bg-gray-200 flex items-center justify-center border-2 border-[#795548]">
-                <span class="text-2xl text-gray-500">{{ user.applicant.full_name|first }}</span>
+    <!-- Back Button -->
+    <div class="mb-4">
+        <a href="{% url 'applicants:landing' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-[#795548] bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#795548] shadow-sm border-[#795548]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Back to Home
+        </a>
+    </div>
+
+    <!-- Header with background pattern -->
+    <div class="pattern-bg rounded-lg p-6 mb-6">
+        <div class="flex flex-col md:flex-row items-center mb-6">
+            <!-- Profile Photo -->
+            <div class="mr-4 mb-4 md:mb-0">
+                {% if user.applicant.profile_photo %}
+                <img src="{{ user.applicant.profile_photo.url }}" alt="Profile Photo" class="rounded-full w-24 h-24 object-cover border-4 border-white shadow-lg">
+                {% else %}
+                <div class="rounded-full w-24 h-24 bg-white flex items-center justify-center border-4 border-white shadow-lg">
+                    <span class="text-3xl text-[#4CAF50] font-bold">{{ user.applicant.full_name|first }}</span>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
-        </div>
-        <div>
-            <h1 class="dashboard-title">Welcome, {{ user.applicant.full_name }}</h1>
-            <p class="text-gray-600">
-                <span class="inline-flex items-center mr-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                    {{ user.email }}
-                </span>
-                <span class="inline-flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                    {{ user.applicant.phone_number }}
-                </span>
-            </p>
+            <div class="text-center md:text-left">
+                <h1 class="text-2xl font-bold text-[#795548] mb-2">Welcome, {{ user.applicant.full_name }}</h1>
+                <p class="text-gray-700">
+                    <span class="inline-flex items-center mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        {{ user.email }}
+                    </span>
+                    <span class="inline-flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                        {{ user.applicant.phone_number }}
+                    </span>
+                </p>
+            </div>
         </div>
     </div>
     
     <div class="status-grid">
-        <div class="status-card">
-            <h2 class="card-title">Application Status</h2>
-            <div class="status-indicator">
+        <div class="status-card shadow-md hover:shadow-lg transition-shadow duration-300">
+            <div class="flex items-center mb-3">
+                <img src="{% static 'applicants/design_assets/icons/document-icon.svg' %}" alt="" class="w-6 h-6 mr-2">
+                <h2 class="card-title mb-0">Application Status</h2>
+            </div>
+            <div class="status-indicator p-3 bg-white rounded-lg">
                 <div class="status-dot {% if user.applicant.status == 'approved' %}bg-green-500{% elif user.applicant.status == 'rejected' %}bg-red-500{% else %}bg-yellow-500{% endif %}"></div>
-                <span>{{ user.applicant.status|title }}</span>
+                <span class="font-medium">{{ user.applicant.status|title }}</span>
             </div>
         </div>
         
-        <div class="status-card">
-            <h2 class="card-title">Required Documents</h2>
-            <ul class="document-list">
-                <li class="document-item">
-                    <span>📄</span>
-                    <span>Resume</span>
+        <div class="status-card shadow-md hover:shadow-lg transition-shadow duration-300">
+            <div class="flex items-center mb-3">
+                <img src="{% static 'applicants/design_assets/icons/document-icon.svg' %}" alt="" class="w-6 h-6 mr-2">
+                <h2 class="card-title mb-0">Required Documents</h2>
+            </div>
+            <ul class="document-list p-3 bg-white rounded-lg">
+                <li class="document-item py-2 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <span class="w-6 h-6 mr-2 flex items-center justify-center">📄</span>
+                        <span class="flex-grow">Resume</span>
+                        <span class="px-2 py-1 rounded-full text-xs font-medium {% if user.applicant.resume %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {% if user.applicant.resume %}Uploaded{% else %}Required{% endif %}
+                        </span>
+                    </div>
                 </li>
-                <li class="document-item">
-                    <span>🎓</span>
-                    <span>Transcript</span>
+                <li class="document-item py-2">
+                    <div class="flex items-center">
+                        <span class="w-6 h-6 mr-2 flex items-center justify-center">🎓</span>
+                        <span class="flex-grow">Transcript</span>
+                        <span class="px-2 py-1 rounded-full text-xs font-medium {% if user.applicant.transcript %}bg-green-100 text-green-800{% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {% if user.applicant.transcript %}Uploaded{% else %}Required{% endif %}
+                        </span>
+                    </div>
                 </li>
             </ul>
         </div>
     </div>
     
-    <div>
-        <h2 class="card-title">Quick Actions</h2>
+    <div class="mt-6">
+        <div class="flex items-center mb-3">
+            <img src="{% static 'applicants/design_assets/icons/farm-icon.svg' %}" alt="" class="w-6 h-6 mr-2">
+            <h2 class="card-title mb-0">Quick Actions</h2>
+        </div>
         <div>
             <div class="actions-grid">
-                <a href="{% url 'applicants:upload_documents' %}" class="action-button">
+                <a href="{% url 'applicants:upload_documents' %}" class="action-button flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <img src="{% static 'applicants/design_assets/icons/document-icon.svg' %}" alt="" class="w-5 h-5 mr-2">
                     Upload Documents
                 </a>
-                <a href="{% url 'applicants:view_farms' %}" class="action-button">
+                <a href="{% url 'applicants:view_farms' %}" class="action-button flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <img src="{% static 'applicants/design_assets/icons/farm-icon.svg' %}" alt="" class="w-5 h-5 mr-2">
                     View Farms
                 </a>
-                <a href="{% url 'applicants:update_profile' %}" class="action-button">
+                <a href="{% url 'applicants:update_profile' %}" class="action-button flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
+                    <img src="{% static 'applicants/design_assets/icons/user-icon.svg' %}" alt="" class="w-5 h-5 mr-2">
                     Update Profile
                 </a>
             </div>
         </div>
-        
+    </div>
+    
+    <!-- Farm Illustration -->
+    <div class="mt-8 flex justify-center">
+        <img src="{% static 'applicants/design_assets/illustrations/farm-illustration.svg' %}" alt="Farm Illustration" class="w-full max-w-md">
     </div>
 </div>
 {% endblock %}

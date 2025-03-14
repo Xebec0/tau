@@ -23,11 +23,13 @@ urlpatterns = [
     path('farm/<int:farm_id>/apply/', views.apply_to_farm, name='apply_to_farm'),
     path('manage-farm-applications/', views.manage_farm_applications, name='manage_farm_applications'),
     path('update-farm-application/<int:application_id>/', views.update_farm_application, name='update_farm_application'),
+    path('add-farm/', views.add_farm, name='add_farm'),
 
     # Applicant Management
     path('applicants/', views.applicant_list, name='applicant_list'),
     path('review-applications/', views.review_applications_list, name='review_applications_list'),
-    path('review/<str:student_number>/', views.review_application, name='review_application'),
+    path('review/<str:identifier>/', views.review_application, name='review_application'),
+    path('update-application-status/<int:applicant_id>/', views.update_application_status, name='update_application_status'),
     
     # Admin Features
     path('reports/', views.generate_reports, name='generate_reports'),

@@ -55,6 +55,7 @@ class Farm(models.Model):
     specialization = models.CharField(max_length=100)
     capacity = models.IntegerField()
     description = models.TextField()
+    image = models.ImageField(upload_to='farm_images/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

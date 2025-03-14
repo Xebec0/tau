@@ -237,6 +237,47 @@ def update_farm_application(request, application_id):
     return render(request, 'applicants/update_farm_application.html', context)
 
 @login_required
+@user_passes_test(is_admin)
+def add_farm(request):
+    """View for administrators to add new farms"""
+    if request.method == 'POST':
+        try:
+            # Extract form data
+            name = request.POST.get('name')
+            location = request.POST.get('location')
+            specialization = request.POST.get('specialization')
+            capacity = request.POST.get('capacity')
+            description = request.POST.get('description')
+            email = request.POST.get('email')
+            
+            # Create new farm
+            farm = Farm(
+                name=name,
+                location=location,
+                specialization=specialization,
+                capacity=capacity,
+                description=description
+            )
+            
+            # Handle image upload if provided
+            if 'image' in request.FILES:
+                image = request.FILES['image']
+                fs = FileSystemStorage(location='media/farm_images/')
+                filename = fs.save(image.name, image)
+                farm.image = f'farm_images/{filename}'
+            
+            farm.save()
+            messages.success(request, f'Farm "{name}" has been added successfully!')
+            return redirect('applicants:manage_farm_applications')
+            
+        except Exception as e:
+            messages.error(request, f'Error adding farm: {str(e)}')
+            return redirect('applicants:manage_farm_applications')
+    
+    # GET requests should redirect to the farm management page
+    return redirect('applicants:manage_farm_applications')
+
+@login_required
 def applicant_list(request):
     applicants = Applicant.objects.all()
     return render(request, 'applicants/applicant_list.html', {'applicants': applicants})
@@ -369,10 +410,20 @@ def review_applications_list(request):
     applications = Applicant.objects.all().order_by('-created_at')
     return render(request, 'applicants/review_applications_list.html', {'applications': applications})
 
-@login_required
 @user_passes_test(is_admin)
-def review_application(request, student_number):
-    applicant = get_object_or_404(Applicant, student_number=student_number)
+def review_application(request, identifier):
+    # Try to get the applicant by ID first, then by student number if that fails
+    try:
+        # First try to convert the identifier to an integer and look up by ID
+        applicant_id = int(identifier)
+        applicant = get_object_or_404(Applicant, id=applicant_id)
+    except (ValueError, TypeError):
+        # If conversion fails, assume it's a student number
+        applicant = get_object_or_404(Applicant, student_number=identifier)
+        
+    # Get farm applications for this applicant
+    farm_applications = FarmApplication.objects.filter(applicant=applicant)
+    
     if request.method == 'POST':
         new_status = request.POST.get('status')
         if new_status in dict(Applicant.STATUS_CHOICES):
@@ -380,7 +431,11 @@ def review_application(request, student_number):
             applicant.save()
             messages.success(request, f'Application status updated to {new_status}')
             return redirect('applicants:review_applications_list')
-    return render(request, 'applicants/review_application.html', {'applicant': applicant})
+    
+    return render(request, 'applicants/review_application.html', {
+        'applicant': applicant,
+        'farm_applications': farm_applications
+    })
 
 @login_required
 @user_passes_test(is_admin)
@@ -522,3 +577,21 @@ def verify_document(request, applicant_id):
         'document_status_choices': Applicant.DOCUMENT_STATUS_CHOICES,
     }
     return render(request, 'applicants/verify_document.html', context)
+
+@login_required
+@user_passes_test(is_admin)
+def update_application_status(request, applicant_id):
+    """View for updating an applicant's application status"""
+    applicant = get_object_or_404(Applicant, id=applicant_id)
+    
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        
+        if new_status in dict(Applicant.STATUS_CHOICES):
+            applicant.status = new_status
+            applicant.save()
+            messages.success(request, f'Application status updated to {new_status}')
+        else:
+            messages.error(request, 'Invalid status value')
+            
+    return redirect('applicants:review_application', identifier=applicant_id)
