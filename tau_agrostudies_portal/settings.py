@@ -125,3 +125,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_REDIRECT_URL = 'applicants:dashboard'
 LOGOUT_REDIRECT_URL = 'applicants:landing'
+
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    'applicants.backends.EmailBackend',  # Custom backend for email authentication
+    'django.contrib.auth.backends.ModelBackend',  # Default backend
+]
+
+# Media files (Uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# CSRF Settings
+CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
+CSRF_COOKIE_HTTPONLY = False  # Set to True in production
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000']

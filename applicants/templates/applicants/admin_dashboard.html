@@ -67,7 +67,7 @@
                 <span class="font-semibold">Manage Farm Applications</span>
             </a>
 
-            <a href="#"
+            <a href="{% url 'applicants:generate_reports' %}"
                class="bg-[#795548] text-white p-4 rounded-lg text-center hover:bg-[#6d4c41] transition-all duration-200 transform hover:scale-105">
                 <span class="font-semibold">Generate Reports</span>
             </a>
@@ -80,7 +80,6 @@
             <h2 class="text-2xl font-bold text-[#795548]">Recent Applications</h2>
             <a href="{% url 'applicants:applicant_list' %}" class="text-[#795548] hover:text-[#6d4c41] flex items-center">
                 <span class="text-sm font-semibold">View All</span>
-                <span class="material-icons ml-1">arrow_forward</span>
             </a>
         </div>
         
@@ -110,7 +109,6 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             <a href="{% url 'applicants:review_application' applicant.student_number %}"
                                class="text-[#795548] hover:text-[#6d4c41] font-medium flex items-center">
-                                <span class="material-icons mr-1 text-sm">visibility</span>
                                 Review
                             </a>
                         </td>

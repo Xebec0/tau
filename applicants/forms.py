@@ -2,14 +2,8 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.core.validators import RegexValidator
-from .models import Applicant, FarmApplication
-
-from django import forms
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
-from .models import Applicant
+from .models import Applicant, FarmApplication
 import re
 from datetime import date, timedelta
 
@@ -127,16 +121,22 @@ class ApplicantRegistrationForm(UserCreationForm):
         return student_number
 
     def clean_date_of_birth(self):
-        date_of_birth = self.cleaned_data['date_of_birth']
-        today = date.today()
-        min_age_date = today - timedelta(days=16*365)
-        max_age_date = today - timedelta(days=100*365)
-
-        if date_of_birth > min_age_date:
-            raise ValidationError("You must be at least 16 years old to register.")
-        if date_of_birth < max_age_date:
-            raise ValidationError("Your age seems unrealistic.")
-        return date_of_birth
+        dob = self.cleaned_data.get('date_of_birth')
+        if dob:
+            today = date.today()
+            min_age_date = today - timedelta(days=16*365)
+            max_age_date = today - timedelta(days=100*365)
+            
+            # Calculate age
+            age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+            
+            if dob > min_age_date:
+                raise ValidationError("You must be at least 16 years old to register.")
+            if dob < max_age_date:
+                raise ValidationError("Your age seems unrealistic.")
+            if age >= 30:
+                raise ValidationError("We're sorry, but applicants must be under 30 years old to apply. You are not eligible for this program.")
+        return dob
 
     def clean_password1(self):
         password1 = self.cleaned_data.get('password1')
@@ -236,3 +236,73 @@ class FarmApplicationUpdateForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
             'status': forms.Select(attrs={'class': 'form-control'}),
         }
+
+class ProfileUpdateForm(forms.ModelForm):
+    """Form for updating user profile information"""
+    full_name = forms.CharField(
+        max_length=100,
+        required=True,
+        validators=[
+            RegexValidator(
+                regex=r'^[A-Za-z\s]+$',
+                message="Full name must contain only letters and spaces"
+            )
+        ],
+        widget=forms.TextInput(attrs={
+            'class': 'p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]'
+        })
+    )
+    
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': 'p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]'
+        })
+    )
+    
+    phone_number = forms.CharField(
+        max_length=20,
+        required=True,
+        validators=[
+            RegexValidator(
+                regex=r'^\+?1?\d{9,15}$',
+                message="Phone number must be a valid international format"
+            )
+        ],
+        widget=forms.TextInput(attrs={
+            'class': 'p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]'
+        })
+    )
+    
+    country = forms.ChoiceField(
+        choices=ApplicantRegistrationForm.COUNTRIES,
+        widget=forms.Select(attrs={
+            'class': 'p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]'
+        }),
+        required=True
+    )
+    
+    profile_photo = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'class': 'p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]',
+            'accept': 'image/*'
+        })
+    )
+    
+    class Meta:
+        model = Applicant
+        fields = ['full_name', 'phone_number', 'country', 'profile_photo']
+        
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['email'].initial = user.email
+            
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        user_id = self.instance.user.id
+        if User.objects.exclude(id=user_id).filter(email=email).exists():
+            raise forms.ValidationError("This email is already in use.")
+        return email

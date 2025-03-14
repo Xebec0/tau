@@ -1,0 +1,343 @@
+{% extends 'applicants/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header Section -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-[#795548]">Reports Dashboard</h1>
+                <p class="text-gray-600 mt-2">Generate and view reports for the application system</p>
+            </div>
+            <div>
+                <a href="{% url 'applicants:admin_dashboard' %}" class="bg-[#795548] text-white px-4 py-2 rounded hover:bg-[#6d4c41] transition-all">
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Report Type Selection -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold text-[#795548] mb-4">Select Report Type</h2>
+        <div class="flex space-x-4">
+            <a href="{% url 'applicants:generate_reports' %}?type=applicants" 
+               class="px-4 py-2 rounded-lg {% if report_type == 'applicants' %}bg-[#795548] text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %} transition-all">
+                Applicant Reports
+            </a>
+            <a href="{% url 'applicants:generate_reports' %}?type=farms" 
+               class="px-4 py-2 rounded-lg {% if report_type == 'farms' %}bg-[#795548] text-white{% else %}bg-gray-200 text-gray-700 hover:bg-gray-300{% endif %} transition-all">
+                Farm Reports
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold text-[#795548] mb-6">Summary Statistics</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="text-lg font-semibold text-[#795548]">Total Applicants</h3>
+                <p class="text-3xl font-bold mt-2">{{ total_applicants }}</p>
+            </div>
+            
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="text-lg font-semibold text-[#795548]">Pending</h3>
+                <p class="text-3xl font-bold mt-2 text-yellow-600">{{ pending_applications }}</p>
+            </div>
+            
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="text-lg font-semibold text-[#795548]">Approved</h3>
+                <p class="text-3xl font-bold mt-2 text-green-600">{{ approved_applications }}</p>
+            </div>
+            
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h3 class="text-lg font-semibold text-[#795548]">Rejected</h3>
+                <p class="text-3xl font-bold mt-2 text-red-600">{{ rejected_applications }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Reports -->
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        {% if report_type == 'applicants' %}
+            <h2 class="text-2xl font-bold text-[#795548] mb-6">Applicant Reports</h2>
+            
+            <!-- Applicants by Status -->
+            <div class="mb-8 border border-gray-200 rounded-lg overflow-hidden">
+                <button class="w-full bg-gray-100 px-6 py-3 text-left flex justify-between items-center" 
+                        onclick="toggleSection('status-section')" type="button">
+                    <h3 class="text-xl font-semibold text-[#795548]">Applicants by Status</h3>
+                    <svg class="w-5 h-5 transform transition-transform" id="status-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div id="status-section" class="hidden px-6 py-4">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for status, count in applicants_by_status.items %}
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ status }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ count }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {% if total_applicants > 0 %}
+                                            {{ count|floatformat:0 }}% ({{ count|floatformat:1 }}/{{ total_applicants }})
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Applicants by Country -->
+            <div class="mb-8 border border-gray-200 rounded-lg overflow-hidden">
+                <button class="w-full bg-gray-100 px-6 py-3 text-left flex justify-between items-center" 
+                        onclick="toggleSection('country-section')" type="button">
+                    <h3 class="text-xl font-semibold text-[#795548]">Applicants by Country</h3>
+                    <svg class="w-5 h-5 transform transition-transform" id="country-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div id="country-section" class="hidden px-6 py-4">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for country, count in countries.items %}
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ country }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ count }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {% if total_applicants > 0 %}
+                                            {{ count|floatformat:0 }}% ({{ count|floatformat:1 }}/{{ total_applicants }})
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Applicants by Gender -->
+            <div class="mb-8 border border-gray-200 rounded-lg overflow-hidden">
+                <button class="w-full bg-gray-100 px-6 py-3 text-left flex justify-between items-center" 
+                        onclick="toggleSection('gender-section')" type="button">
+                    <h3 class="text-xl font-semibold text-[#795548]">Applicants by Gender</h3>
+                    <svg class="w-5 h-5 transform transition-transform" id="gender-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div id="gender-section" class="hidden px-6 py-4">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gender</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for gender, count in genders.items %}
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ gender }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ count }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {% if total_applicants > 0 %}
+                                            {{ count|floatformat:0 }}% ({{ count|floatformat:1 }}/{{ total_applicants }})
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Applicants by Age Group -->
+            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <button class="w-full bg-gray-100 px-6 py-3 text-left flex justify-between items-center" 
+                        onclick="toggleSection('age-section')" type="button">
+                    <h3 class="text-xl font-semibold text-[#795548]">Applicants by Age Group (18-30 years)</h3>
+                    <svg class="w-5 h-5 transform transition-transform" id="age-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div id="age-section" class="hidden px-6 py-4">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Age Group</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for age_group, count in age_groups.items %}
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ age_group }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ count }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {% if total_applicants > 0 %}
+                                            {{ count|floatformat:0 }}% ({{ count|floatformat:1 }}/{{ total_applicants }})
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4 text-sm text-gray-600">
+                        <p>Note: Only applicants between 18 and 30 years old are eligible for the program.</p>
+                    </div>
+                </div>
+            </div>
+            
+        {% elif report_type == 'farms' %}
+            <h2 class="text-2xl font-bold text-[#795548] mb-6">Farm Reports</h2>
+            
+            <!-- Farm Applications by Status -->
+            <div class="mb-8 border border-gray-200 rounded-lg overflow-hidden">
+                <button class="w-full bg-gray-100 px-6 py-3 text-left flex justify-between items-center" 
+                        onclick="toggleSection('farm-status-section')" type="button">
+                    <h3 class="text-xl font-semibold text-[#795548]">Farm Applications by Status</h3>
+                    <svg class="w-5 h-5 transform transition-transform" id="farm-status-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div id="farm-status-section" class="hidden px-6 py-4">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for status, count in farm_applications_by_status.items %}
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ status }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ count }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {% if total_farm_applications > 0 %}
+                                            {{ count|floatformat:0 }}% ({{ count|floatformat:1 }}/{{ total_farm_applications }})
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Applications by Farm -->
+            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <button class="w-full bg-gray-100 px-6 py-3 text-left flex justify-between items-center" 
+                        onclick="toggleSection('farm-list-section')" type="button">
+                    <h3 class="text-xl font-semibold text-[#795548]">Applications by Farm</h3>
+                    <svg class="w-5 h-5 transform transition-transform" id="farm-list-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+                <div id="farm-list-section" class="hidden px-6 py-4">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Farm Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applications</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {% for farm_name, count in farms.items %}
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ farm_name }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">{{ count }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        {% if total_farm_applications > 0 %}
+                                            {{ count|floatformat:0 }}% ({{ count|floatformat:1 }}/{{ total_farm_applications }})
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Export Options -->
+        <div class="mt-8 flex justify-end">
+            <button class="bg-[#795548] text-white px-4 py-2 rounded hover:bg-[#6d4c41] transition-all mr-4">
+                Export as PDF
+            </button>
+            <button class="bg-[#795548] text-white px-4 py-2 rounded hover:bg-[#6d4c41] transition-all">
+                Export as CSV
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleSection(sectionId) {
+    const section = document.getElementById(sectionId);
+    const icon = document.getElementById(sectionId.replace('section', 'icon'));
+    
+    if (section.classList.contains('hidden')) {
+        section.classList.remove('hidden');
+        icon.classList.add('rotate-180');
+    } else {
+        section.classList.add('hidden');
+        icon.classList.remove('rotate-180');
+    }
+}
+
+// Show the first section by default
+document.addEventListener('DOMContentLoaded', function() {
+    {% if report_type == 'applicants' %}
+    toggleSection('status-section');
+    {% elif report_type == 'farms' %}
+    toggleSection('farm-status-section');
+    {% endif %}
+});
+</script>
+{% endblock %} 

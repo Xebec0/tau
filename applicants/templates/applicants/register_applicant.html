@@ -2,14 +2,15 @@
 {% block content %}
 <div class="container py-5">
 
-    {% if messages %}
-        {% for message in messages %}
-            <div class="mb-4 p-3 {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %} rounded">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-
+    {% if age_restriction_error %}
+    <div class="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg mb-6 text-center">
+        <p class="text-xl font-semibold mb-3">Age Restriction</p>
+        <p class="mb-4">{{ age_restriction_error }}</p>
+        <a href="{% url 'applicants:landing' %}" class="bg-[#4CAF50] text-white px-6 py-2 rounded-lg hover:bg-[#3e8e41] transition-all inline-block">
+            Back to Home
+        </a>
+    </div>
+    {% else %}
     {% if form.errors %}
         <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">
             <ul>
@@ -142,6 +143,7 @@
             </div>
         </div>
     </div>
+    {% endif %}
 </div>
 
 <script>
@@ -215,21 +217,51 @@ function validateConfirmPassword(input) {
     }
 }
 
-document.getElementById('registration-form').addEventListener('submit', function(event) {
-    let isValid = true;
-    const inputs = this.querySelectorAll('input[required], select[required]');
-    
-    inputs.forEach(input => {
-        if (!input.checkValidity()) {
-            isValid = false;
-            const errorElement = document.getElementById(input.id + '-error');
-            errorElement.textContent = input.validationMessage;
+var form = document.getElementById('registration-form');
+if (form) {
+    form.addEventListener('submit', function(event) {
+        let isValid = true;
+        const inputs = this.querySelectorAll('input[required], select[required]');
+        
+        inputs.forEach(input => {
+            if (!input.checkValidity()) {
+                isValid = false;
+                const errorElement = document.getElementById(input.id + '-error');
+                if (errorElement) {
+                    errorElement.textContent = input.validationMessage;
+                }
+            }
+        });
+
+        if (!isValid) {
+            event.preventDefault();
         }
     });
+}
 
-    if (!isValid) {
-        event.preventDefault();
-    }
-});
+var dobInput = document.getElementById('id_date_of_birth');
+if (dobInput) {
+    dobInput.addEventListener('change', function() {
+        const errorElement = document.getElementById('date_of_birth-error');
+        const dob = new Date(this.value);
+        const today = new Date();
+        let age = today.getFullYear() - dob.getFullYear();
+        const monthDiff = today.getMonth() - dob.getMonth();
+        
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+            age--;
+        }
+        
+        if (age >= 30) {
+            errorElement.textContent = "We're sorry, but applicants must be under 30 years old to apply. You are not eligible for this program.";
+            // Redirect to the same page with age restriction parameter
+            window.location.href = "{% url 'applicants:register_applicant' %}?age_restriction=true";
+        } else if (age < 16) {
+            errorElement.textContent = "You must be at least 16 years old to register.";
+        } else {
+            errorElement.textContent = "";
+        }
+    });
+}
 </script>
 {% endblock %}

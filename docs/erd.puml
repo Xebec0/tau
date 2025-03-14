@@ -1,0 +1,70 @@
+@startuml TAU Agrostudies System ERD
+
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+!define primary_key(x) <b><color:red>x</color></b>
+!define foreign_key(x) <color:blue>x</color>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+
+' Entities
+
+Table(User, "User\n(Django Auth User)") {
+    primary_key(id)
+    unique(username)
+    unique(email)
+    not_null(password)
+    first_name
+    last_name
+    is_staff
+    is_active
+    date_joined
+}
+
+Table(Applicant, "Applicant") {
+    primary_key(id)
+    foreign_key(user_id)
+    not_null(full_name)
+    unique(student_number)
+    not_null(date_of_birth)
+    not_null(gender)
+    not_null(country)
+    phone_number
+    profile_photo
+    status
+    created_at
+}
+
+Table(Farm, "Farm") {
+    primary_key(id)
+    not_null(name)
+    not_null(location)
+    not_null(specialization)
+    description
+    capacity
+    created_at
+}
+
+Table(FarmApplication, "FarmApplication") {
+    primary_key(id)
+    foreign_key(applicant_id)
+    foreign_key(farm_id)
+    foreign_key(reviewed_by_id)
+    not_null(status)
+    motivation_letter
+    applied_at
+    reviewed_at
+}
+
+' Relationships
+User "1" -- "1" Applicant : has
+User "1" -- "*" FarmApplication : reviews
+Applicant "1" -- "*" FarmApplication : submits
+Farm "1" -- "*" FarmApplication : receives
+
+note "Status Choices for Applicant:\n* pending\n* approved\n* rejected" as ApplicantStatus
+note "Status Choices for FarmApplication:\n* pending\n* approved\n* rejected" as FarmApplicationStatus
+
+Applicant .. ApplicantStatus
+FarmApplication .. FarmApplicationStatus
+
+@enduml 

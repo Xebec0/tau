@@ -11,8 +11,10 @@ from .models import Applicant, Farm, FarmApplication
 from .forms import (
     ApplicantRegistrationForm,
     AdminRegistrationForm,
-    FarmApplicationUpdateForm
+    FarmApplicationUpdateForm,
+    ProfileUpdateForm
 )
+from django.urls import reverse
 
 def is_admin(user):
     return user.is_staff or user.is_superuser
@@ -21,11 +23,40 @@ def landing_page(request):
     """Landing page view for the application"""
     return render(request, 'applicants/landing.html')
 
+def login_view(request):
+    """Custom login view that supports email authentication"""
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, f"Welcome back, {user.username}!")
+                return redirect('applicants:dashboard')
+            else:
+                messages.error(request, "Invalid email/username or password.")
+        else:
+            messages.error(request, "Invalid email/username or password.")
+    else:
+        form = AuthenticationForm()
+    return render(request, 'applicants/login.html', {'form': form})
+
 def role_selection(request):
     """View for selecting registration role (applicant or admin)"""
     return render(request, 'applicants/role_selection.html')
 
 def register_applicant(request):
+    # Check for age restriction parameter
+    age_restriction = request.GET.get('age_restriction')
+    if age_restriction == 'true':
+        context = {
+            'age_restriction_error': "We're sorry, but applicants must be under 30 years old to apply. You are not eligible for this program.",
+            'form': ApplicantRegistrationForm()  # Still pass the form to avoid template errors
+        }
+        return render(request, 'applicants/register_applicant.html', context)
+    
     if request.method == 'POST':
         form = ApplicantRegistrationForm(request.POST)
         if form.is_valid():
@@ -49,10 +80,20 @@ def register_applicant(request):
                 return redirect('applicants:dashboard')
             except IntegrityError:
                 messages.error(request, 'This user already has an applicant profile.')
+        else:
+            # Check for age validation error specifically
+            if 'date_of_birth' in form.errors:
+                for error in form.errors['date_of_birth']:
+                    if "30 years old" in error:
+                        # Instead of showing a message, redirect with age restriction parameter
+                        return redirect('{}?age_restriction=true'.format(
+                            reverse('applicants:register_applicant')
+                        ))
     else:
         form = ApplicantRegistrationForm()
     
     return render(request, 'applicants/register_applicant.html', {'form': form})
+
 def register_admin(request):
     if request.method == 'POST':
         form = AdminRegistrationForm(request.POST)
@@ -217,21 +258,102 @@ def delete_applicant(request, student_number):
 
 @login_required
 def upload_documents(request):
+    try:
+        applicant = request.user.applicant
+    except Applicant.DoesNotExist:
+        messages.error(request, 'Please complete your applicant profile first.')
+        return redirect('applicants:register_applicant')
+
     if request.method == 'POST' and request.FILES:
-        fs = FileSystemStorage()
-        for uploaded_file in request.FILES.values():
-            fs.save(uploaded_file.name, uploaded_file)
-        messages.success(request, 'Documents uploaded successfully!')
-        return redirect('applicants:dashboard')
+        document_type = request.POST.get('document_type')
+        
+        if document_type == 'resume':
+            if 'resume' in request.FILES:
+                file = request.FILES['resume']
+                if not file.name.lower().endswith(('.pdf', '.doc', '.docx')):
+                    messages.error(request, 'Resume must be a PDF, DOC, or DOCX file.')
+                    return render(request, 'applicants/upload_documents.html')
+                
+                # Check if there's an existing file to replace
+                is_replacement = bool(applicant.resume)
+                
+                # Store the original filename
+                original_filename = file.name
+                
+                # If there's an existing file, it will be automatically deleted by Django
+                # when the new file is saved with the same field name
+                applicant.resume = file
+                applicant.resume_uploaded_at = timezone.now()
+                applicant.save()
+                
+                if is_replacement:
+                    messages.success(request, f'Resume "{original_filename}" replaced successfully!')
+                else:
+                    messages.success(request, f'Resume "{original_filename}" uploaded successfully!')
+            else:
+                messages.error(request, 'Please select a resume file to upload.')
+                
+        elif document_type == 'transcript':
+            if 'transcript' in request.FILES:
+                file = request.FILES['transcript']
+                if not file.name.lower().endswith('.pdf'):
+                    messages.error(request, 'Transcript must be a PDF file.')
+                    return render(request, 'applicants/upload_documents.html')
+                
+                # Check if there's an existing file to replace
+                is_replacement = bool(applicant.transcript)
+                
+                # Store the original filename
+                original_filename = file.name
+                
+                # If there's an existing file, it will be automatically deleted by Django
+                # when the new file is saved with the same field name
+                applicant.transcript = file
+                applicant.transcript_uploaded_at = timezone.now()
+                applicant.save()
+                
+                if is_replacement:
+                    messages.success(request, f'Transcript "{original_filename}" replaced successfully!')
+                else:
+                    messages.success(request, f'Transcript "{original_filename}" uploaded successfully!')
+            else:
+                messages.error(request, 'Please select a transcript file to upload.')
+        
+        return render(request, 'applicants/upload_documents.html')
+        
     return render(request, 'applicants/upload_documents.html')
 
 @login_required
 def update_profile(request):
+    try:
+        applicant = request.user.applicant
+    except Applicant.DoesNotExist:
+        messages.error(request, 'Please complete your applicant profile first.')
+        return redirect('applicants:register_applicant')
+    
     if request.method == 'POST':
-        # Add profile update logic here
-        messages.success(request, 'Profile updated successfully!')
-        return redirect('applicants:dashboard')
-    return render(request, 'applicants/update_profile.html')
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=applicant, user=request.user)
+        if form.is_valid():
+            # Update applicant profile
+            profile = form.save(commit=False)
+            
+            # Handle profile photo upload
+            if 'profile_photo' in request.FILES:
+                profile.profile_photo = request.FILES['profile_photo']
+                
+            profile.save()
+            
+            # Update user email
+            user = request.user
+            user.email = form.cleaned_data['email']
+            user.save()
+            
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('applicants:dashboard')
+    else:
+        form = ProfileUpdateForm(instance=applicant, user=request.user)
+    
+    return render(request, 'applicants/update_profile.html', {'form': form})
 
 @login_required
 def contact_support(request):
@@ -259,3 +381,90 @@ def review_application(request, student_number):
             messages.success(request, f'Application status updated to {new_status}')
             return redirect('applicants:review_applications_list')
     return render(request, 'applicants/review_application.html', {'applicant': applicant})
+
+@login_required
+@user_passes_test(is_admin)
+def generate_reports(request):
+    """View for generating various reports for admin users"""
+    report_type = request.GET.get('type', 'applicants')
+    
+    # Default data for all reports
+    context = {
+        'total_applicants': Applicant.objects.count(),
+        'pending_applications': Applicant.objects.filter(status='pending').count(),
+        'approved_applications': Applicant.objects.filter(status='approved').count(),
+        'rejected_applications': Applicant.objects.filter(status='rejected').count(),
+        'total_farm_applications': FarmApplication.objects.count(),
+        'pending_farm_applications': FarmApplication.objects.filter(status='pending').count(),
+        'approved_farm_applications': FarmApplication.objects.filter(status='approved').count(),
+        'rejected_farm_applications': FarmApplication.objects.filter(status='rejected').count(),
+    }
+    
+    # Specific data based on report type
+    if report_type == 'applicants':
+        # Applicants by country
+        countries = {}
+        for applicant in Applicant.objects.all():
+            country = applicant.country
+            if country in countries:
+                countries[country] += 1
+            else:
+                countries[country] = 1
+        
+        # Applicants by gender
+        genders = {}
+        for applicant in Applicant.objects.all():
+            gender = applicant.gender
+            if gender in genders:
+                genders[gender] += 1
+            else:
+                genders[gender] = 1
+        
+        # Applicants by age group
+        import datetime
+        
+        age_groups = {
+            '18-20': 0,
+            '21-23': 0,
+            '24-26': 0,
+            '27-30': 0
+        }
+        
+        for applicant in Applicant.objects.all():
+            today = timezone.now().date()
+            age = today.year - applicant.date_of_birth.year - ((today.month, today.day) < (applicant.date_of_birth.month, applicant.date_of_birth.day))
+            
+            if age <= 20:
+                age_groups['18-20'] += 1
+            elif age <= 23:
+                age_groups['21-23'] += 1
+            elif age <= 26:
+                age_groups['24-26'] += 1
+            elif age <= 30:
+                age_groups['27-30'] += 1
+        
+        context['countries'] = countries
+        context['genders'] = genders
+        context['age_groups'] = age_groups
+        context['applicants_by_status'] = {
+            'Pending': context['pending_applications'],
+            'Approved': context['approved_applications'],
+            'Rejected': context['rejected_applications']
+        }
+        
+    elif report_type == 'farms':
+        # Farm applications by farm
+        farms = {}
+        for farm in Farm.objects.all():
+            farm_apps = FarmApplication.objects.filter(farm=farm).count()
+            farms[farm.name] = farm_apps
+        
+        context['farms'] = farms
+        context['farm_applications_by_status'] = {
+            'Pending': context['pending_farm_applications'],
+            'Approved': context['approved_farm_applications'],
+            'Rejected': context['rejected_farm_applications']
+        }
+    
+    context['report_type'] = report_type
+    return render(request, 'applicants/generate_reports.html', context)

@@ -7,16 +7,40 @@
         
         <!-- Document Status -->
         <div class="mb-8 p-4 bg-gray-50 rounded-lg">
-            <h3 class="font-semibold mb-2">Current Document Status</h3>
-            <div class="grid grid-cols-2 gap-4">
+            <h3 class="font-semibold mb-4">Current Document Status</h3>
+            
+            <!-- Resume Status -->
+            <div class="mb-4 border-b pb-3">
                 <div class="flex items-center">
                     <div class="w-3 h-3 rounded-full {% if user.applicant.resume %}bg-green-500{% else %}bg-gray-300{% endif %} mr-2"></div>
-                    <span>Resume: {% if user.applicant.resume %}Uploaded{% else %}Not uploaded{% endif %}</span>
+                    <span class="font-medium">Resume:</span>
+                    <span class="ml-2">{% if user.applicant.resume %}Uploaded{% else %}Not uploaded{% endif %}</span>
+                    {% if user.applicant.resume %}
+                    <span class="ml-2 text-sm text-gray-500">({{ user.applicant.resume_uploaded_at|date:"M d, Y" }} at {{ user.applicant.resume_uploaded_at|time:"g:i A" }})</span>
+                    {% endif %}
                 </div>
+                {% if user.applicant.resume %}
+                <div class="ml-5 mt-1 text-sm text-gray-600">
+                    <span class="inline-block w-16 font-medium">File:</span> {{ user.applicant.resume.name }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Transcript Status -->
+            <div>
                 <div class="flex items-center">
                     <div class="w-3 h-3 rounded-full {% if user.applicant.transcript %}bg-green-500{% else %}bg-gray-300{% endif %} mr-2"></div>
-                    <span>Transcript: {% if user.applicant.transcript %}Uploaded{% else %}Not uploaded{% endif %}</span>
+                    <span class="font-medium">Transcript:</span>
+                    <span class="ml-2">{% if user.applicant.transcript %}Uploaded{% else %}Not uploaded{% endif %}</span>
+                    {% if user.applicant.transcript %}
+                    <span class="ml-2 text-sm text-gray-500">({{ user.applicant.transcript_uploaded_at|date:"M d, Y" }} at {{ user.applicant.transcript_uploaded_at|time:"g:i A" }})</span>
+                    {% endif %}
                 </div>
+                {% if user.applicant.transcript %}
+                <div class="ml-5 mt-1 text-sm text-gray-600">
+                    <span class="inline-block w-16 font-medium">File:</span> {{ user.applicant.transcript.name }}
+                </div>
+                {% endif %}
             </div>
         </div>
 
@@ -24,24 +48,85 @@
             <!-- Resume Upload -->
             <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
                 <h3 class="text-lg font-semibold mb-4">Resume</h3>
+                
+                {% if user.applicant.resume %}
+                <!-- Reupload option when resume already exists -->
+                <div class="mb-4">
+                    <div class="flex items-center text-sm text-gray-600 mb-3">
+                        <svg class="w-4 h-4 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Document already uploaded</span>
+                    </div>
+                    <a href="{{ user.applicant.resume.url }}" target="_blank" 
+                       class="text-[#795548] hover:text-[#6d4c41] underline text-sm">
+                        View Current Resume
+                    </a>
+                </div>
+                <form method="post" enctype="multipart/form-data" class="space-y-4">
+                    {% csrf_token %}
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">Reupload or Change Document (PDF, DOC, DOCX)</label>
+                        <input type="file" name="resume" accept=".pdf,.doc,.docx"
+                               class="w-full border border-gray-300 rounded-lg p-2">
+                    </div>
+                    <input type="hidden" name="document_type" value="resume">
+                    <button type="submit"
+                            class="bg-[#795548] text-white px-4 py-2 rounded-lg hover:bg-[#6d4c41] w-full transition-colors">
+                        Replace Resume
+                    </button>
+                </form>
+                {% else %}
+                <!-- Regular upload form when no resume exists -->
                 <form method="post" enctype="multipart/form-data" class="space-y-4">
                     {% csrf_token %}
                     <div class="space-y-2">
                         <label class="block text-sm font-medium text-gray-700">Upload your resume (PDF, DOC, DOCX)</label>
-                        <input type="file" name="resume" accept=".pdf,.doc,.docx" multiple
-       class="w-full border border-gray-300 rounded-lg p-2">
-
+                        <input type="file" name="resume" accept=".pdf,.doc,.docx"
+                               class="w-full border border-gray-300 rounded-lg p-2">
                     </div>
-                    <button type="submit" name="document_type" value="resume"
-                            class="bg-[#795548] text-white px-4 py-2 rounded-lg hover:bg-[#6d4c41] w-full">
+                    <input type="hidden" name="document_type" value="resume">
+                    <button type="submit"
+                            class="bg-[#795548] text-white px-4 py-2 rounded-lg hover:bg-[#6d4c41] w-full transition-colors">
                         Upload Resume
                     </button>
                 </form>
+                {% endif %}
             </div>
 
             <!-- Transcript Upload -->
             <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
                 <h3 class="text-lg font-semibold mb-4">Academic Transcript</h3>
+                
+                {% if user.applicant.transcript %}
+                <!-- Reupload option when transcript already exists -->
+                <div class="mb-4">
+                    <div class="flex items-center text-sm text-gray-600 mb-3">
+                        <svg class="w-4 h-4 mr-1 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <span>Document already uploaded</span>
+                    </div>
+                    <a href="{{ user.applicant.transcript.url }}" target="_blank"
+                       class="text-[#795548] hover:text-[#6d4c41] underline text-sm">
+                        View Current Transcript
+                    </a>
+                </div>
+                <form method="post" enctype="multipart/form-data" class="space-y-4">
+                    {% csrf_token %}
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">Reupload or Change Document (PDF only)</label>
+                        <input type="file" name="transcript" accept=".pdf"
+                               class="w-full border border-gray-300 rounded-lg p-2">
+                    </div>
+                    <input type="hidden" name="document_type" value="transcript">
+                    <button type="submit"
+                            class="bg-[#795548] text-white px-4 py-2 rounded-lg hover:bg-[#6d4c41] w-full transition-colors">
+                        Replace Transcript
+                    </button>
+                </form>
+                {% else %}
+                <!-- Regular upload form when no transcript exists -->
                 <form method="post" enctype="multipart/form-data" class="space-y-4">
                     {% csrf_token %}
                     <div class="space-y-2">
@@ -49,12 +134,22 @@
                         <input type="file" name="transcript" accept=".pdf"
                                class="w-full border border-gray-300 rounded-lg p-2">
                     </div>
-                    <button type="submit" name="document_type" value="transcript"
-                            class="bg-[#795548] text-white px-4 py-2 rounded-lg hover:bg-[#6d4c41] w-full">
+                    <input type="hidden" name="document_type" value="transcript">
+                    <button type="submit"
+                            class="bg-[#795548] text-white px-4 py-2 rounded-lg hover:bg-[#6d4c41] w-full transition-colors">
                         Upload Transcript
                     </button>
                 </form>
+                {% endif %}
             </div>
+        </div>
+
+        <!-- Back to Dashboard -->
+        <div class="mt-8 text-center">
+            <a href="{% url 'applicants:dashboard' %}" 
+               class="inline-block bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors">
+                Back to Dashboard
+            </a>
         </div>
     </div>
 </div>

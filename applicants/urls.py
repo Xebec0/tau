@@ -11,7 +11,7 @@ urlpatterns = [
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
 
     # Authentication
-    path('login/', auth_views.LoginView.as_view(template_name='applicants/login.html'), name='login'),
+    path('login/', views.login_view, name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='applicants:landing'), name='logout'),
     path('register/select/', views.role_selection, name='register'),
     path('register/applicant/', views.register_applicant, name='register_applicant'),
@@ -28,11 +28,16 @@ urlpatterns = [
     path('applicants/', views.applicant_list, name='applicant_list'),
     path('review-applications/', views.review_applications_list, name='review_applications_list'),
     path('review/<str:student_number>/', views.review_application, name='review_application'),
-    path('<str:student_number>/', views.applicant_detail, name='applicant_detail'),
-    path('delete/<str:student_number>/', views.delete_applicant, name='delete_applicant'),
-
+    
+    # Admin Features
+    path('reports/', views.generate_reports, name='generate_reports'),
+    
     # User Features
     path('documents/upload/', views.upload_documents, name='upload_documents'),
     path('profile/update/', views.update_profile, name='update_profile'),
     path('support/', views.contact_support, name='contact_support'),
+    
+    # This must be last as it's a catch-all pattern
+    path('<str:student_number>/', views.applicant_detail, name='applicant_detail'),
+    path('delete/<str:student_number>/', views.delete_applicant, name='delete_applicant'),
 ]
