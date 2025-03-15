@@ -290,16 +290,52 @@ class ProfileUpdateForm(forms.ModelForm):
         })
     )
     
+    # Social media fields
+    linkedin_profile = forms.URLField(
+        required=False,
+        widget=forms.URLInput(attrs={
+            'class': 'p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]',
+            'placeholder': 'https://linkedin.com/in/yourprofile'
+        })
+    )
+    
+    facebook_profile = forms.URLField(
+        required=False,
+        widget=forms.URLInput(attrs={
+            'class': 'p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]',
+            'placeholder': 'https://facebook.com/yourprofile'
+        })
+    )
+    
+    twitter_profile = forms.URLField(
+        required=False,
+        widget=forms.URLInput(attrs={
+            'class': 'p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]',
+            'placeholder': 'https://twitter.com/yourhandle'
+        })
+    )
+    
+    instagram_profile = forms.URLField(
+        required=False,
+        widget=forms.URLInput(attrs={
+            'class': 'p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]',
+            'placeholder': 'https://instagram.com/yourhandle'
+        })
+    )
+    
     class Meta:
         model = Applicant
-        fields = ['full_name', 'phone_number', 'country', 'profile_photo']
+        fields = [
+            'full_name', 'phone_number', 'country', 'profile_photo',
+            'linkedin_profile', 'facebook_profile', 'twitter_profile', 'instagram_profile'
+        ]
         
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
         if user:
-            self.fields['email'].initial = user.email
-            
+            self.initial['email'] = user.email
+
     def clean_email(self):
         email = self.cleaned_data.get('email')
         user_id = self.instance.user.id

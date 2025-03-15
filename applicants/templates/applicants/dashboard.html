@@ -1,6 +1,34 @@
 {% extends 'applicants/base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    .social-links {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 0.5rem;
+    }
+    .social-link {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    .social-link:hover {
+        transform: translateY(-3px);
+    }
+    .linkedin-bg { background-color: #0077b5; }
+    .facebook-bg { background-color: #1877f2; }
+    .twitter-bg { background-color: #1da1f2; }
+    .instagram-bg { background-color: #e1306c; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="dashboard-container">
     <!-- Back Button -->
@@ -41,6 +69,35 @@
                         </svg>
                         {{ user.applicant.phone_number }}
                     </span>
+                    
+                    <!-- Social Media Links -->
+                    {% if user.applicant.linkedin_profile or user.applicant.facebook_profile or user.applicant.twitter_profile or user.applicant.instagram_profile %}
+                    <div class="social-links">
+                        {% if user.applicant.linkedin_profile %}
+                        <a href="{{ user.applicant.linkedin_profile }}" target="_blank" class="social-link linkedin-bg" title="LinkedIn Profile">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        {% endif %}
+                        
+                        {% if user.applicant.facebook_profile %}
+                        <a href="{{ user.applicant.facebook_profile }}" target="_blank" class="social-link facebook-bg" title="Facebook Profile">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        {% endif %}
+                        
+                        {% if user.applicant.twitter_profile %}
+                        <a href="{{ user.applicant.twitter_profile }}" target="_blank" class="social-link twitter-bg" title="Twitter Profile">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        {% endif %}
+                        
+                        {% if user.applicant.instagram_profile %}
+                        <a href="{{ user.applicant.instagram_profile }}" target="_blank" class="social-link instagram-bg" title="Instagram Profile">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </p>
             </div>
         </div>

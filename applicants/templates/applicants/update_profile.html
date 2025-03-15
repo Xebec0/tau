@@ -1,5 +1,78 @@
 {% extends 'applicants/base.html' %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    .image-container {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    #cropper-container {
+        display: none;
+        margin-top: 15px;
+    }
+    .cropper-container {
+        margin: 0 auto;
+    }
+    .cropper-preview {
+        overflow: hidden;
+        width: 150px;
+        height: 150px;
+        margin: 10px auto;
+        border: 1px solid #ccc;
+        border-radius: 50%;
+    }
+    .cropper-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .form-section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #4b5563;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+    }
+    .form-section-title i {
+        margin-right: 0.5rem;
+        color: #795548;
+    }
+    .social-input {
+        display: flex;
+        align-items: center;
+    }
+    .social-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f3f4f6;
+        border: 1px solid #e5e7eb;
+        border-right: none;
+        border-top-left-radius: 0.375rem;
+        border-bottom-left-radius: 0.375rem;
+    }
+    .social-input input {
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+    }
+    .linkedin-icon { color: #0077b5; }
+    .facebook-icon { color: #1877f2; }
+    .twitter-icon { color: #1da1f2; }
+    .instagram-icon { color: #e1306c; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container py-5">
     <div class="row justify-content-center">
@@ -17,68 +90,162 @@
                 </div>
                 {% endif %}
 
-                <!-- Current Profile Photo -->
-                <div class="text-center mb-6">
-                    {% if form.instance.profile_photo %}
-                    <div class="mb-3">
-                        <img src="{{ form.instance.profile_photo.url }}" alt="Profile Photo" class="rounded-full w-32 h-32 object-cover mx-auto border-4 border-[#795548]">
-                    </div>
-                    {% else %}
-                    <div class="mb-3">
-                        <div class="rounded-full w-32 h-32 bg-gray-200 flex items-center justify-center mx-auto border-4 border-[#795548]">
-                            <span class="text-4xl text-gray-500">{{ form.instance.full_name|first }}</span>
-                        </div>
-                    </div>
-                    {% endif %}
-                </div>
-
-                <form method="post" class="space-y-4" enctype="multipart/form-data">
+                <form method="post" class="space-y-4" enctype="multipart/form-data" id="profile-form">
                     {% csrf_token %}
 
-                    <!-- Profile Photo Upload -->
-                    <div class="form-group">
-                        <label for="{{ form.profile_photo.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Profile Photo</label>
-                        {{ form.profile_photo }}
-                        <p class="text-xs text-gray-500 mt-1">Upload a profile photo (optional)</p>
-                        {% if form.profile_photo.errors %}
-                        <div class="text-red-500 text-sm mt-1">{{ form.profile_photo.errors.0 }}</div>
-                        {% endif %}
+                    <!-- Profile Photo Section -->
+                    <div class="form-section">
+                        <h3 class="form-section-title"><i class="fas fa-user-circle"></i> Profile Photo</h3>
+                        
+                        <!-- Current Profile Photo -->
+                        <div class="text-center mb-6">
+                            {% if form.instance.profile_photo %}
+                            <div class="mb-3">
+                                <img src="{{ form.instance.profile_photo.url }}" alt="Profile Photo" class="rounded-full w-32 h-32 object-cover mx-auto border-4 border-[#795548]">
+                            </div>
+                            {% else %}
+                            <div class="mb-3">
+                                <div class="rounded-full w-32 h-32 bg-gray-200 flex items-center justify-center mx-auto border-4 border-[#795548]">
+                                    <span class="text-4xl text-gray-500">{{ form.instance.full_name|first }}</span>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Profile Photo Upload -->
+                        <div class="form-group">
+                            <label for="photo-input" class="block text-sm font-medium text-gray-700 mb-1">Update Profile Photo</label>
+                            <input type="file" id="photo-input" accept="image/*" class="p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]">
+                            <p class="text-xs text-gray-500 mt-1">Upload a profile photo (optional). You'll be able to crop it after selection.</p>
+                            
+                            <!-- Hidden actual form field that will receive the cropped image -->
+                            <div style="display:none;">
+                                {{ form.profile_photo }}
+                            </div>
+                            
+                            {% if form.profile_photo.errors %}
+                            <div class="text-red-500 text-sm mt-1">{{ form.profile_photo.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Image Cropper Container -->
+                        <div id="cropper-container" class="mb-4">
+                            <div class="image-container">
+                                <img id="image-to-crop" src="" alt="Image to crop">
+                            </div>
+                            <div class="cropper-preview" id="preview"></div>
+                            <div class="cropper-buttons">
+                                <button type="button" id="crop-btn" class="px-4 py-2 bg-[#4CAF50] text-white rounded hover:bg-[#388E3C] transition">
+                                    Crop & Save
+                                </button>
+                                <button type="button" id="cancel-crop-btn" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition">
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Full Name -->
-                    <div class="form-group">
-                        <label for="{{ form.full_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                        {{ form.full_name }}
-                        {% if form.full_name.errors %}
-                        <div class="text-red-500 text-sm mt-1">{{ form.full_name.errors.0 }}</div>
-                        {% endif %}
-                    </div>
+                    <!-- Personal Information Section -->
+                    <div class="form-section">
+                        <h3 class="form-section-title"><i class="fas fa-id-card"></i> Personal Information</h3>
+                        
+                        <!-- Full Name -->
+                        <div class="form-group mb-4">
+                            <label for="{{ form.full_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                            {{ form.full_name }}
+                            {% if form.full_name.errors %}
+                            <div class="text-red-500 text-sm mt-1">{{ form.full_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
 
-                    <!-- Email -->
-                    <div class="form-group">
-                        <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                        {{ form.email }}
-                        {% if form.email.errors %}
-                        <div class="text-red-500 text-sm mt-1">{{ form.email.errors.0 }}</div>
-                        {% endif %}
-                    </div>
+                        <!-- Email -->
+                        <div class="form-group mb-4">
+                            <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="text-red-500 text-sm mt-1">{{ form.email.errors.0 }}</div>
+                            {% endif %}
+                        </div>
 
-                    <!-- Phone Number -->
-                    <div class="form-group">
-                        <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
-                        {{ form.phone_number }}
-                        {% if form.phone_number.errors %}
-                        <div class="text-red-500 text-sm mt-1">{{ form.phone_number.errors.0 }}</div>
-                        {% endif %}
-                    </div>
+                        <!-- Phone Number -->
+                        <div class="form-group mb-4">
+                            <label for="{{ form.phone_number.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                            {{ form.phone_number }}
+                            {% if form.phone_number.errors %}
+                            <div class="text-red-500 text-sm mt-1">{{ form.phone_number.errors.0 }}</div>
+                            {% endif %}
+                        </div>
 
-                    <!-- Country -->
-                    <div class="form-group">
-                        <label for="{{ form.country.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Country</label>
-                        {{ form.country }}
-                        {% if form.country.errors %}
-                        <div class="text-red-500 text-sm mt-1">{{ form.country.errors.0 }}</div>
-                        {% endif %}
+                        <!-- Country -->
+                        <div class="form-group">
+                            <label for="{{ form.country.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                            {{ form.country }}
+                            {% if form.country.errors %}
+                            <div class="text-red-500 text-sm mt-1">{{ form.country.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Social Media Section -->
+                    <div class="form-section">
+                        <h3 class="form-section-title"><i class="fas fa-share-alt"></i> Social Media Profiles</h3>
+                        <p class="text-sm text-gray-500 mb-4">Connect your social media accounts to enhance your profile (optional)</p>
+                        
+                        <!-- LinkedIn -->
+                        <div class="form-group mb-4">
+                            <label for="{{ form.linkedin_profile.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">LinkedIn Profile</label>
+                            <div class="social-input">
+                                <div class="social-icon">
+                                    <i class="fab fa-linkedin-in linkedin-icon"></i>
+                                </div>
+                                {{ form.linkedin_profile }}
+                            </div>
+                            {% if form.linkedin_profile.errors %}
+                            <div class="text-red-500 text-sm mt-1">{{ form.linkedin_profile.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Facebook -->
+                        <div class="form-group mb-4">
+                            <label for="{{ form.facebook_profile.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Facebook Profile</label>
+                            <div class="social-input">
+                                <div class="social-icon">
+                                    <i class="fab fa-facebook-f facebook-icon"></i>
+                                </div>
+                                {{ form.facebook_profile }}
+                            </div>
+                            {% if form.facebook_profile.errors %}
+                            <div class="text-red-500 text-sm mt-1">{{ form.facebook_profile.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Twitter -->
+                        <div class="form-group mb-4">
+                            <label for="{{ form.twitter_profile.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Twitter Profile</label>
+                            <div class="social-input">
+                                <div class="social-icon">
+                                    <i class="fab fa-twitter twitter-icon"></i>
+                                </div>
+                                {{ form.twitter_profile }}
+                            </div>
+                            {% if form.twitter_profile.errors %}
+                            <div class="text-red-500 text-sm mt-1">{{ form.twitter_profile.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Instagram -->
+                        <div class="form-group">
+                            <label for="{{ form.instagram_profile.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Instagram Profile</label>
+                            <div class="social-input">
+                                <div class="social-icon">
+                                    <i class="fab fa-instagram instagram-icon"></i>
+                                </div>
+                                {{ form.instagram_profile }}
+                            </div>
+                            {% if form.instagram_profile.errors %}
+                            <div class="text-red-500 text-sm mt-1">{{ form.instagram_profile.errors.0 }}</div>
+                            {% endif %}
+                        </div>
                     </div>
 
                     <div class="flex justify-between mt-6">
@@ -94,4 +261,111 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const photoInput = document.getElementById('photo-input');
+        const imageToCrop = document.getElementById('image-to-crop');
+        const cropperContainer = document.getElementById('cropper-container');
+        const cropBtn = document.getElementById('crop-btn');
+        const cancelCropBtn = document.getElementById('cancel-crop-btn');
+        const profileForm = document.getElementById('profile-form');
+        const hiddenInput = document.querySelector('input[name="profile_photo"]');
+        
+        let cropper;
+        
+        // When a file is selected
+        photoInput.addEventListener('change', function(e) {
+            if (e.target.files.length) {
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    // Display the image and initialize cropper
+                    imageToCrop.src = event.target.result;
+                    cropperContainer.style.display = 'block';
+                    
+                    // Destroy existing cropper if it exists
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                    
+                    // Initialize cropper
+                    cropper = new Cropper(imageToCrop, {
+                        aspectRatio: 1, // Square aspect ratio for profile picture
+                        viewMode: 1,    // Restrict the crop box to not exceed the size of the canvas
+                        preview: '#preview',
+                        guides: true,
+                        background: false,
+                        autoCropArea: 0.8,
+                        responsive: true
+                    });
+                };
+                
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+        
+        // When crop button is clicked
+        cropBtn.addEventListener('click', function() {
+            if (!cropper) return;
+            
+            // Get the cropped canvas
+            const canvas = cropper.getCroppedCanvas({
+                width: 300,
+                height: 300,
+                fillColor: '#fff',
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+            });
+            
+            // Convert canvas to blob
+            canvas.toBlob(function(blob) {
+                // Create a File object
+                const file = new File([blob], 'profile_photo.png', { type: 'image/png' });
+                
+                // Create a FileList-like object
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                
+                // Set the file to the hidden input
+                hiddenInput.files = dataTransfer.files;
+                
+                // Hide the cropper
+                cropperContainer.style.display = 'none';
+                
+                // Show a preview of the cropped image
+                const img = document.createElement('img');
+                img.src = canvas.toDataURL();
+                img.className = 'rounded-full w-32 h-32 object-cover mx-auto border-4 border-[#795548] mt-3';
+                
+                // Replace any existing preview
+                const existingPreview = document.querySelector('.cropped-preview');
+                if (existingPreview) {
+                    existingPreview.remove();
+                }
+                
+                // Add the preview after the file input
+                const previewContainer = document.createElement('div');
+                previewContainer.className = 'cropped-preview text-center mt-3';
+                previewContainer.appendChild(img);
+                
+                const photoInputContainer = photoInput.parentElement;
+                photoInputContainer.appendChild(previewContainer);
+            }, 'image/png');
+        });
+        
+        // Cancel cropping
+        cancelCropBtn.addEventListener('click', function() {
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            cropperContainer.style.display = 'none';
+            photoInput.value = '';
+        });
+    });
+</script>
 {% endblock %} 

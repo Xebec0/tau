@@ -31,6 +31,12 @@ class Applicant(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     profile_photo = models.ImageField(upload_to='profile_photos/', null=True, blank=True)
     
+    # Social media fields
+    linkedin_profile = models.URLField(max_length=255, blank=True, null=True)
+    facebook_profile = models.URLField(max_length=255, blank=True, null=True)
+    twitter_profile = models.URLField(max_length=255, blank=True, null=True)
+    instagram_profile = models.URLField(max_length=255, blank=True, null=True)
+    
     # Document fields
     resume = models.FileField(upload_to='resumes/', null=True, blank=True)
     resume_uploaded_at = models.DateTimeField(null=True, blank=True)

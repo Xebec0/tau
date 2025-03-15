@@ -366,11 +366,12 @@ def upload_documents(request):
 
 @login_required
 def update_profile(request):
+    """View for updating user profile"""
     try:
         applicant = request.user.applicant
     except Applicant.DoesNotExist:
-        messages.error(request, 'Please complete your applicant profile first.')
-        return redirect('applicants:register_applicant')
+        messages.error(request, "You don't have an applicant profile.")
+        return redirect('applicants:dashboard')
     
     if request.method == 'POST':
         form = ProfileUpdateForm(request.POST, request.FILES, instance=applicant, user=request.user)
@@ -381,6 +382,12 @@ def update_profile(request):
             # Handle profile photo upload
             if 'profile_photo' in request.FILES:
                 profile.profile_photo = request.FILES['profile_photo']
+            
+            # Save social media profiles
+            profile.linkedin_profile = form.cleaned_data.get('linkedin_profile')
+            profile.facebook_profile = form.cleaned_data.get('facebook_profile')
+            profile.twitter_profile = form.cleaned_data.get('twitter_profile')
+            profile.instagram_profile = form.cleaned_data.get('instagram_profile')
                 
             profile.save()
             
@@ -389,8 +396,10 @@ def update_profile(request):
             user.email = form.cleaned_data['email']
             user.save()
             
-        messages.success(request, 'Profile updated successfully!')
-        return redirect('applicants:dashboard')
+            messages.success(request, 'Profile updated successfully!')
+            return redirect('applicants:dashboard')
+        else:
+            messages.error(request, 'Please correct the errors below.')
     else:
         form = ProfileUpdateForm(instance=applicant, user=request.user)
     
