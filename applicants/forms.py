@@ -21,17 +21,47 @@ class ApplicantRegistrationForm(UserCreationForm):
         ('China', 'China'),
     ]
 
-    full_name = forms.CharField(
-        max_length=100,
+    first_name = forms.CharField(
+        max_length=50,
         required=True,
         validators=[
             RegexValidator(
                 regex=r'^[A-Za-z\s]+$', 
-                message="Full name must contain only letters and spaces"
+                message="First name must contain only letters and spaces"
             )
         ],
         widget=forms.TextInput(attrs={
-            'placeholder': 'Enter full name',
+            'placeholder': 'Enter first name',
+            'class': 'p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]'
+        })
+    )
+
+    middle_name = forms.CharField(
+        max_length=50,
+        required=False,
+        validators=[
+            RegexValidator(
+                regex=r'^[A-Za-z\s]*$', 
+                message="Middle name must contain only letters and spaces"
+            )
+        ],
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Enter middle name (optional)',
+            'class': 'p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]'
+        })
+    )
+
+    last_name = forms.CharField(
+        max_length=50,
+        required=True,
+        validators=[
+            RegexValidator(
+                regex=r'^[A-Za-z\s]+$', 
+                message="Last name must contain only letters and spaces"
+            )
+        ],
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Enter last name',
             'class': 'p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]'
         })
     )
@@ -67,14 +97,6 @@ class ApplicantRegistrationForm(UserCreationForm):
         required=True
     )
 
-    country = forms.ChoiceField(
-        choices=COUNTRIES,
-        widget=forms.Select(attrs={
-            'class': 'p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]'
-        }),
-        required=True
-    )
-
     phone_number = forms.CharField(
         max_length=20,
         required=True,
@@ -94,8 +116,8 @@ class ApplicantRegistrationForm(UserCreationForm):
         model = User
         fields = [
             'username', 'email', 'password1', 'password2',
-            'full_name', 'student_number', 'date_of_birth',
-            'gender', 'country', 'phone_number'
+            'first_name', 'middle_name', 'last_name', 'student_number', 'date_of_birth',
+            'gender', 'phone_number'
         ]
 
     def clean_username(self):
@@ -169,11 +191,12 @@ class ApplicantRegistrationForm(UserCreationForm):
             # Create associated Applicant profile
             Applicant.objects.create(
                 user=user,
-                full_name=self.cleaned_data['full_name'],
+                first_name=self.cleaned_data['first_name'],
+                middle_name=self.cleaned_data['middle_name'],
+                last_name=self.cleaned_data['last_name'],
                 student_number=self.cleaned_data['student_number'],
                 date_of_birth=self.cleaned_data['date_of_birth'],
                 gender=self.cleaned_data['gender'],
-                country=self.cleaned_data['country'],
                 phone_number=self.cleaned_data['phone_number']
             )
         return user
@@ -239,13 +262,42 @@ class FarmApplicationUpdateForm(forms.ModelForm):
 
 class ProfileUpdateForm(forms.ModelForm):
     """Form for updating user profile information"""
-    full_name = forms.CharField(
-        max_length=100,
+    first_name = forms.CharField(
+        max_length=50,
         required=True,
         validators=[
             RegexValidator(
-                regex=r'^[A-Za-z\s]+$',
-                message="Full name must contain only letters and spaces"
+                regex=r'^[A-Za-z\s]+$', 
+                message="First name must contain only letters and spaces"
+            )
+        ],
+        widget=forms.TextInput(attrs={
+            'class': 'p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]'
+        })
+    )
+
+    middle_name = forms.CharField(
+        max_length=50,
+        required=False,
+        validators=[
+            RegexValidator(
+                regex=r'^[A-Za-z\s]*$', 
+                message="Middle name must contain only letters and spaces"
+            )
+        ],
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Enter middle name (optional)',
+            'class': 'p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]'
+        })
+    )
+
+    last_name = forms.CharField(
+        max_length=50,
+        required=True,
+        validators=[
+            RegexValidator(
+                regex=r'^[A-Za-z\s]+$', 
+                message="Last name must contain only letters and spaces"
             )
         ],
         widget=forms.TextInput(attrs={
@@ -272,14 +324,6 @@ class ProfileUpdateForm(forms.ModelForm):
         widget=forms.TextInput(attrs={
             'class': 'p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]'
         })
-    )
-    
-    country = forms.ChoiceField(
-        choices=ApplicantRegistrationForm.COUNTRIES,
-        widget=forms.Select(attrs={
-            'class': 'p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]'
-        }),
-        required=True
     )
     
     profile_photo = forms.ImageField(
@@ -326,7 +370,7 @@ class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Applicant
         fields = [
-            'full_name', 'phone_number', 'country', 'profile_photo',
+            'first_name', 'middle_name', 'last_name', 'phone_number', 'profile_photo',
             'linkedin_profile', 'facebook_profile', 'twitter_profile', 'instagram_profile'
         ]
         

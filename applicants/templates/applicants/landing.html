@@ -506,7 +506,7 @@
 
 {% if not user.is_authenticated %}
 <!-- Anonymous User Landing Page -->
-<!-- Hero Section -->
+    <!-- Hero Section -->
 <section class="hero">
     <div class="container hero-container">
         <div class="hero-content">
@@ -726,7 +726,7 @@
     </div>
 </section>
 
-{% else %}
+            {% else %}
 <!-- Student User Landing Page -->
 <section class="hero">
     <div class="container hero-container">
@@ -802,9 +802,9 @@
                 </div>
                 <div class="dashboard-card-footer">
                     <a href="{% url 'applicants:update_profile' %}" class="custom-btn btn-outline">Edit Profile</a>
-                </div>
-            </div>
-            
+        </div>
+    </div>
+
             <div class="dashboard-card">
                 <div class="dashboard-card-header">
                     <div class="dashboard-card-icon">
@@ -825,7 +825,7 @@
         </div>
     </div>
 </section>
-{% endif %}
+    {% endif %}
 {% endblock %}
 
 {% block extra_js %}

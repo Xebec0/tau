@@ -90,8 +90,12 @@
                         </div>
                     </div>
                     
-                    <a href="{% url 'applicants:farm_detail' farm.id %}" class="action-button d-block text-center">
-                        Explore Opportunity
+                    <a href="{% url 'applicants:farm_detail' farm.id %}" class="action-button d-block text-center {% if farm.already_applied %}already-applied{% endif %}">
+                        {% if farm.already_applied %}
+                            Already Applied
+                        {% else %}
+                            Explore Opportunity
+                        {% endif %}
                     </a>
                 </div>
             </div>

@@ -168,7 +168,45 @@
 .action-button:hover {
     background-color: #4CAF50;
     color: white;
+}
+
+.action-button-disabled {
+    padding: 0.75rem;
+    background-color: #E0E0E0;
+    color: #9E9E9E;
+    border-radius: 0.5rem;
+    cursor: not-allowed;
+    position: relative;
+}
+
+.locked-icon {
+    font-size: 0.75rem;
+}
+
+.action-button.already-applied {
+    background-color: #E8F5E9;
+    color: #2E7D32;
+    border: 2px solid #A5D6A7;
+    position: relative;
+    padding-left: 2rem;
+    cursor: pointer;
+}
+
+.action-button.already-applied:before {
+    content: '\f00c';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.action-button.already-applied:hover {
+    background-color: #C8E6C9;
+    color: #1B5E20;
     transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Applicant List */
@@ -400,6 +438,66 @@
     max-width: 24rem;
 }
 
+/* Application Status Card */
+.application-status-card {
+    display: flex;
+    background-color: #F0F9FF;
+    border: 1px solid #BAE6FD;
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.application-status-card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.application-status-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    background-color: #DBEAFE;
+    border-radius: 50%;
+    margin-right: 1rem;
+}
+
+.application-status-icon i {
+    font-size: 1.5rem;
+    color: #3B82F6;
+}
+
+.application-status-content {
+    flex: 1;
+}
+
+.application-status-title {
+    color: #1E40AF;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.application-status-message {
+    color: #4B5563;
+    margin-bottom: 1rem;
+}
+
+.application-status-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.mr-1 {
+    margin-right: 0.25rem;
+}
+
 /* Responsive Fixes */
 @media (max-width: 640px) {
     .farm-app-table {
@@ -514,4 +612,214 @@ footer {
 .card-content {
     background: white;
     border-radius: 0 0 8px 8px;
+}
+
+/* Farm Detail Page Styles */
+.farm-detail-header {
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.farm-detail-title {
+    color: #2E7D32;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.farm-detail-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+}
+
+.farm-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #4B5563;
+    font-size: 1rem;
+}
+
+.farm-detail-card {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    height: 100%;
+}
+
+.farm-detail-image-wrapper {
+    height: 300px;
+    overflow: hidden;
+}
+
+.farm-detail-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.farm-detail-image:hover {
+    transform: scale(1.03);
+}
+
+.farm-detail-content {
+    padding: 1.5rem;
+}
+
+.farm-section-title {
+    color: #2E7D32;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.farm-description {
+    color: #4B5563;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.farm-location-details {
+    margin-bottom: 1.5rem;
+}
+
+.location-tag, .specialization-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background-color: #F3F4F6;
+    border-radius: 9999px;
+    color: #4B5563;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+}
+
+.application-card {
+    background-color: #FAFAFA;
+    border-left: 4px solid #4CAF50;
+}
+
+.application-intro {
+    color: #4B5563;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.application-form {
+    margin-bottom: 1.5rem;
+}
+
+.btn-apply {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.btn-apply:hover {
+    background-color: #3D8B40;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.application-tips {
+    background-color: #FFFBEB;
+    border-radius: 0.5rem;
+    padding: 1.25rem;
+    border: 1px solid #FEF3C7;
+}
+
+.tips-title {
+    color: #92400E;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.tips-list {
+    color: #4B5563;
+    padding-left: 1.5rem;
+    margin-bottom: 0;
+}
+
+.tips-list li {
+    margin-bottom: 0.5rem;
+}
+
+.tips-list li:last-child {
+    margin-bottom: 0;
+}
+
+/* Breadcrumb Styling */
+.breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    margin-bottom: 1rem;
+    list-style: none;
+    background-color: transparent;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+    color: #6B7280;
+    font-size: 0.875rem;
+}
+
+.breadcrumb-item + .breadcrumb-item {
+    padding-left: 0.5rem;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    display: inline-block;
+    padding-right: 0.5rem;
+    color: #9CA3AF;
+    content: "/";
+}
+
+.breadcrumb-item a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    color: #3D8B40;
+    text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+    color: #6B7280;
+}
+
+/* Responsive adjustments for farm detail page */
+@media (max-width: 768px) {
+    .farm-detail-meta {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .farm-detail-image-wrapper {
+        height: 200px;
+    }
 }

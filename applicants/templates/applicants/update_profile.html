@@ -106,7 +106,7 @@
                             {% else %}
                             <div class="mb-3">
                                 <div class="rounded-full w-32 h-32 bg-gray-200 flex items-center justify-center mx-auto border-4 border-[#795548]">
-                                    <span class="text-4xl text-gray-500">{{ form.instance.full_name|first }}</span>
+                                    <span class="text-4xl text-gray-500">{{ form.instance.first_name|first }}</span>
                                 </div>
                             </div>
                             {% endif %}
@@ -149,12 +149,30 @@
                     <div class="form-section">
                         <h3 class="form-section-title"><i class="fas fa-id-card"></i> Personal Information</h3>
                         
-                        <!-- Full Name -->
+                        <!-- First Name -->
                         <div class="form-group mb-4">
-                            <label for="{{ form.full_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                            {{ form.full_name }}
-                            {% if form.full_name.errors %}
-                            <div class="text-red-500 text-sm mt-1">{{ form.full_name.errors.0 }}</div>
+                            <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                            <div class="text-red-500 text-sm mt-1">{{ form.first_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Middle Name -->
+                        <div class="form-group mb-4">
+                            <label for="{{ form.middle_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Middle Name (Optional)</label>
+                            {{ form.middle_name }}
+                            {% if form.middle_name.errors %}
+                            <div class="text-red-500 text-sm mt-1">{{ form.middle_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Last Name -->
+                        <div class="form-group mb-4">
+                            <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                            <div class="text-red-500 text-sm mt-1">{{ form.last_name.errors.0 }}</div>
                             {% endif %}
                         </div>
 
@@ -176,14 +194,7 @@
                             {% endif %}
                         </div>
 
-                        <!-- Country -->
-                        <div class="form-group">
-                            <label for="{{ form.country.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">Country</label>
-                            {{ form.country }}
-                            {% if form.country.errors %}
-                            <div class="text-red-500 text-sm mt-1">{{ form.country.errors.0 }}</div>
-                            {% endif %}
-                        </div>
+                        <!-- Country field removed -->
                     </div>
                     
                     <!-- Social Media Section -->

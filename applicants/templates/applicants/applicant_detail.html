@@ -13,7 +13,45 @@
             <strong>Date of Birth:</strong> {{ applicant.date_of_birth }}<br>
             <strong>Applied on:</strong> {{ applicant.created_at }}
         </p>
-        <a href="{% url 'applicants:applicant_list' %}" class="btn btn-secondary">Back to List</a>
+        <div class="d-flex gap-2">
+            <a href="{% url 'applicants:applicant_list' %}" class="btn btn-secondary">Back to List</a>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#sendNotificationModal">
+                <i class="bi bi-bell"></i> Send Notification
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Send Notification Modal -->
+<div class="modal fade" id="sendNotificationModal" tabindex="-1" aria-labelledby="sendNotificationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sendNotificationModalLabel">Send Notification to {{ applicant.full_name }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'applicants:send_notification' applicant.id %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="notification_type" class="form-label">Notification Type</label>
+                        <select class="form-select" id="notification_type" name="notification_type">
+                            <option value="general">General Notification</option>
+                            <option value="document_reminder">Document Reminder</option>
+                            <option value="application_status">Application Status Update</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Notification</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

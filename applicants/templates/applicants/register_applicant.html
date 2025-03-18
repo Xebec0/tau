@@ -6,9 +6,13 @@
     <div class="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-lg mb-6 text-center">
         <p class="text-xl font-semibold mb-3">Age Restriction</p>
         <p class="mb-4">{{ age_restriction_error }}</p>
-        <a href="{% url 'applicants:landing' %}" class="bg-[#4CAF50] text-white px-6 py-2 rounded-lg hover:bg-[#3e8e41] transition-all inline-block">
-            Back to Home
-        </a>
+        <div class="mb-4">
+            {% if not user.is_authenticated %}
+            <a href="{% url 'applicants:landing_page' %}" class="text-[#795548] hover:text-[#6d4c41]">
+                <i class="fas fa-arrow-left mr-1"></i> Back to Home
+            </a>
+            {% endif %}
+        </div>
     </div>
     {% else %}
     {% if form.errors %}
@@ -28,15 +32,37 @@
                 <form method="post" action="{% url 'applicants:register_applicant' %}" id="registration-form" class="space-y-3">
                     {% csrf_token %}
 
-                    <!-- Full Name -->
+                    <!-- First Name -->
                     <div class="input-group">
-                        <input type="text" name="full_name" id="id_full_name"
+                        <input type="text" name="first_name" id="id_first_name"
                                class="p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]"
-                               placeholder="Full Name" required 
+                               placeholder="First Name" required 
                                pattern="[A-Za-z\s]+" 
-                               title="Full name must contain only letters and spaces"
+                               title="First name must contain only letters and spaces"
                                oninput="validateField(this)">
-                        <div class="error-message text-red-500 text-sm mt-1" id="full_name-error"></div>
+                        <div class="error-message text-red-500 text-sm mt-1" id="first_name-error"></div>
+                    </div>
+
+                    <!-- Middle Name -->
+                    <div class="input-group">
+                        <input type="text" name="middle_name" id="id_middle_name"
+                               class="p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]"
+                               placeholder="Middle Name (Optional)" 
+                               pattern="[A-Za-z\s]*" 
+                               title="Middle name must contain only letters and spaces"
+                               oninput="validateField(this)">
+                        <div class="error-message text-red-500 text-sm mt-1" id="middle_name-error"></div>
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="input-group">
+                        <input type="text" name="last_name" id="id_last_name"
+                               class="p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]"
+                               placeholder="Last Name" required 
+                               pattern="[A-Za-z\s]+" 
+                               title="Last name must contain only letters and spaces"
+                               oninput="validateField(this)">
+                        <div class="error-message text-red-500 text-sm mt-1" id="last_name-error"></div>
                     </div>
 
                     <!-- Student Number -->
@@ -88,18 +114,6 @@
                                title="Phone number must be a valid international format"
                                oninput="validatePhoneNumber(this)">
                         <div class="error-message text-red-500 text-sm mt-1" id="phone_number-error"></div>
-                    </div>
-
-                    <!-- Country -->
-                    <div class="input-group">
-                        <select name="country" id="id_country"
-                                class="p-2 border rounded w-full focus:ring-2 focus:ring-[#795548]"
-                                required>
-                            <option value="">Select Country</option>
-                            {% for country in form.COUNTRIES %}
-                            <option value="{{ country.0 }}">{{ country.1 }}</option>
-                            {% endfor %}
-                        </select>
                     </div>
 
                     <!-- Username -->

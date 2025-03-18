@@ -31,16 +31,6 @@
 
 {% block content %}
 <div class="dashboard-container">
-    <!-- Back Button -->
-    <div class="mb-4">
-        <a href="{% url 'applicants:landing' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-[#795548] bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#795548] shadow-sm border-[#795548]">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Back to Home
-        </a>
-    </div>
-
     <!-- Header with background pattern -->
     <div class="pattern-bg rounded-lg p-6 mb-6">
         <div class="flex flex-col md:flex-row items-center mb-6">
@@ -113,6 +103,26 @@
                 <div class="status-dot {% if user.applicant.status == 'approved' %}bg-green-500{% elif user.applicant.status == 'rejected' %}bg-red-500{% else %}bg-yellow-500{% endif %}"></div>
                 <span class="font-medium">{{ user.applicant.status|title }}</span>
             </div>
+            
+            <!-- Application Status Message -->
+            <div class="mt-3 p-3 rounded-lg {% if user.applicant.status == 'approved' %}bg-green-50 text-green-800{% elif user.applicant.status == 'rejected' %}bg-red-50 text-red-800{% else %}bg-yellow-50 text-yellow-800{% endif %}">
+                {% if user.applicant.status == 'approved' %}
+                    <p class="text-sm">
+                        <i class="fas fa-check-circle mr-1"></i>
+                        Your application has been approved! You can now view and apply to farms.
+                    </p>
+                {% elif user.applicant.status == 'rejected' %}
+                    <p class="text-sm">
+                        <i class="fas fa-times-circle mr-1"></i>
+                        Your application has been rejected. Please contact support for more information.
+                    </p>
+                {% else %}
+                    <p class="text-sm">
+                        <i class="fas fa-clock mr-1"></i>
+                        Your application is currently under review. You'll be able to apply to farms once approved.
+                    </p>
+                {% endif %}
+            </div>
         </div>
         
         <div class="status-card shadow-md hover:shadow-lg transition-shadow duration-300">
@@ -154,10 +164,20 @@
                     <img src="{% static 'applicants/design_assets/icons/document-icon.svg' %}" alt="" class="w-5 h-5 mr-2">
                     Upload Documents
                 </a>
+                
+                {% if user.applicant.status == 'approved' %}
                 <a href="{% url 'applicants:view_farms' %}" class="action-button flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
                     <img src="{% static 'applicants/design_assets/icons/farm-icon.svg' %}" alt="" class="w-5 h-5 mr-2">
                     View Farms
                 </a>
+                {% else %}
+                <div class="action-button-disabled flex items-center justify-center shadow-md">
+                    <img src="{% static 'applicants/design_assets/icons/farm-icon.svg' %}" alt="" class="w-5 h-5 mr-2">
+                    View Farms
+                    <span class="locked-icon ml-2"><i class="fas fa-lock"></i></span>
+                </div>
+                {% endif %}
+                
                 <a href="{% url 'applicants:update_profile' %}" class="action-button flex items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300">
                     <img src="{% static 'applicants/design_assets/icons/user-icon.svg' %}" alt="" class="w-5 h-5 mr-2">
                     Update Profile

@@ -2,7 +2,6 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.models import User
 from django.contrib import messages
 from django.utils import timezone
 from django.core.files.storage import FileSystemStorage
@@ -63,16 +62,13 @@ def role_selection(request):
     return render(request, 'applicants/role_selection.html')
 
 def register_applicant(request):
-    print("DEBUG: Entering register_applicant view")
     # Redirect already authenticated users to dashboard
     if request.user.is_authenticated:
-        print(f"DEBUG: User {request.user.username} is authenticated, redirecting to dashboard")
         return redirect('applicants:dashboard')
         
     # Check for age restriction parameter
     age_restriction = request.GET.get('age_restriction')
     if age_restriction == 'true':
-        print("DEBUG: Age restriction parameter is true")
         context = {
             'age_restriction_error': "We're sorry, but applicants must be under 30 years old to apply. You are not eligible for this program.",
             'form': ApplicantRegistrationForm()  # Still pass the form to avoid template errors
@@ -80,10 +76,8 @@ def register_applicant(request):
         return render(request, 'applicants/register_applicant.html', context)
     
     if request.method == 'POST':
-        print("DEBUG: Processing POST request")
         form = ApplicantRegistrationForm(request.POST)
         if form.is_valid():
-            print("DEBUG: Form is valid")
             try:
                 with transaction.atomic():
                     user = form.save(commit=False)
@@ -99,35 +93,28 @@ def register_applicant(request):
                         gender=form.cleaned_data['gender'],
                         phone_number=form.cleaned_data['phone_number']
                     )
-                print("DEBUG: User and applicant created successfully")
                     
                 # Authenticate and login the user with the ModelBackend
                 authenticated_user = authenticate(request, username=user.username, password=form.cleaned_data['password1'])
                 if authenticated_user is not None:
-                    print("DEBUG: User authenticated successfully")
                     login(request, authenticated_user, backend='django.contrib.auth.backends.ModelBackend')
                     messages.success(request, 'Registration successful!')
                     return redirect('applicants:dashboard')
                 else:
-                    print("DEBUG: User authentication failed")
                     messages.error(request, 'Authentication failed after registration.')
                 return redirect('applicants:login')
             except IntegrityError:
-                print("DEBUG: IntegrityError occurred")
                 messages.error(request, 'This user already has an applicant profile.')
         else:
-            print(f"DEBUG: Form is invalid. Errors: {form.errors}")
             # Check for age validation error specifically
             if 'date_of_birth' in form.errors:
                 for error in form.errors['date_of_birth']:
                     if "30 years old" in error:
                         # Instead of showing a message, redirect with age restriction parameter
-                        print("DEBUG: Age validation error, redirecting with age_restriction=true")
                         return redirect('{}?age_restriction=true'.format(
                             reverse('applicants:register_applicant')
                         ))
     else:
-        print("DEBUG: GET request, creating empty form")
         form = ApplicantRegistrationForm()
     
     return render(request, 'applicants/register_applicant.html', {'form': form})
@@ -158,15 +145,11 @@ def register_admin(request):
 
 @login_required
 def dashboard(request):
-    print("DEBUG: Entering dashboard view")
     if request.user.is_staff or request.user.is_superuser:
-        print("DEBUG: User is staff/admin, redirecting to admin_dashboard")
         return redirect('applicants:admin_dashboard')
     
     try:
-        print(f"DEBUG: Trying to get applicant for user {request.user.username}")
         applicant = request.user.applicant
-        print(f"DEBUG: Successfully got applicant {applicant.id}")
         farm_applications = FarmApplication.objects.filter(applicant=applicant)
     
         # Add messages based on application status
@@ -184,44 +167,20 @@ def dashboard(request):
                 notification_type='general',
                 message='Welcome to TAU Agrostudies Portal! Your application has been received and is under review.'
             )
-    
+        
         context = {
             'applicant': applicant,
             'farm_applications': farm_applications,
-            'unread_notifications_count': Notification.objects.filter(user=request.user, is_read=False).count(),
+            'unread_notifications_count': Notification.objects.filter(user=request.user, read=False).count(),
         }
-        print("DEBUG: Rendering dashboard template")
         return render(request, 'applicants/dashboard.html', context)
     except Applicant.DoesNotExist:
-        print("DEBUG: Applicant does not exist, creating a temporary profile")
-        # Instead of redirecting, create a basic profile for the user
-        try:
-            applicant = Applicant(
-                user=request.user,
-                first_name=request.user.first_name or "",
-                last_name=request.user.last_name or "",
-                student_number=f"TEMP{request.user.id}",
-                date_of_birth=timezone.now().date(),
-                gender='other'
-            )
-            applicant.save()
-            messages.info(request, 'A basic profile has been created for you. Please update your details in the profile section.')
-            return redirect('applicants:update_profile')
-        except Exception as e:
-            print(f"DEBUG: Error creating temporary profile: {str(e)}")
-            messages.error(request, f"Could not create a profile automatically: {str(e)}")
-            return render(request, 'applicants/dashboard.html', {
-                'error': 'Profile creation failed',
-                'unread_notifications_count': Notification.objects.filter(user=request.user, is_read=False).count(),
-            })
+        messages.error(request, 'You need to complete your profile before accessing the dashboard.')
+        return redirect('applicants:profile_setup')
     except Exception as e:
-        print(f"DEBUG: Exception occurred: {str(e)}")
         messages.error(request, f'An error occurred: {str(e)}')
-        # Return to a safe page instead of redirecting
-        return render(request, 'applicants/dashboard.html', {
-            'error': str(e),
-            'unread_notifications_count': Notification.objects.filter(user=request.user, is_read=False).count(),
-        })
+        # Redirect to profile setup instead to prevent redirect loops
+        return redirect('applicants:profile_setup')
 
 @login_required
 @user_passes_test(is_admin)
@@ -246,9 +205,9 @@ def view_farms(request):
         if applicant.status != 'approved':
             messages.warning(request, 'Your application needs to be approved before you can view and apply to farms.')
             return redirect('applicants:dashboard')
-    except Applicant.DoesNotExist:
-        messages.info(request, 'Please complete your profile information first.')
-        return redirect('applicants:update_profile')
+    except:
+        messages.error(request, 'Please complete your applicant profile first.')
+        return redirect('applicants:dashboard')
     
     farms = Farm.objects.all()
     search_query = request.GET.get('search')
@@ -290,9 +249,9 @@ def farm_detail(request, farm_id):
         if applicant.status != 'approved':
             messages.warning(request, 'Your application needs to be approved before you can view and apply to farms.')
             return redirect('applicants:dashboard')
-    except Applicant.DoesNotExist:
-        messages.info(request, 'Please complete your profile information first.')
-        return redirect('applicants:update_profile')
+    except:
+        messages.error(request, 'Please complete your applicant profile first.')
+        return redirect('applicants:dashboard')
     
     farm = get_object_or_404(Farm, id=farm_id)
     already_applied = FarmApplication.objects.filter(applicant=applicant, farm=farm).exists()
@@ -306,9 +265,9 @@ def apply_to_farm(request, farm_id):
         if applicant.status != 'approved':
             messages.warning(request, 'Your application needs to be approved before you can apply to farms.')
             return redirect('applicants:dashboard')
-    except Applicant.DoesNotExist:
-        messages.info(request, 'Please complete your profile information first.')
-        return redirect('applicants:update_profile')
+    except:
+        messages.error(request, 'Please complete your applicant profile first.')
+        return redirect('applicants:dashboard')
     
     farm = get_object_or_404(Farm, id=farm_id)
     
@@ -430,8 +389,8 @@ def upload_documents(request):
     try:
         applicant = request.user.applicant
     except Applicant.DoesNotExist:
-        messages.info(request, 'Please complete your profile information before uploading documents.')
-        return redirect('applicants:update_profile')
+        messages.error(request, 'Please complete your applicant profile first.')
+        return redirect('applicants:register_applicant')
 
     # Get all documents for the applicant
     documents = Document.objects.filter(applicant=applicant)
@@ -578,17 +537,8 @@ def update_profile(request):
     try:
         applicant = request.user.applicant
     except Applicant.DoesNotExist:
-        # Create a basic profile for the user
-        applicant = Applicant(
-            user=request.user,
-            first_name=request.user.first_name or "",
-            last_name=request.user.last_name or "",
-            student_number=f"TEMP{request.user.id}",
-            date_of_birth=timezone.now().date(),
-            gender='other'
-        )
-        applicant.save()
-        messages.info(request, "A preliminary profile has been created for you. Please complete it with your information.")
+        messages.error(request, "You don't have an applicant profile.")
+        return redirect('applicants:profile_setup')
     
     if request.method == 'POST':
         form = ProfileUpdateForm(request.POST, request.FILES, instance=applicant, user=request.user)

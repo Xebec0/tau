@@ -185,43 +185,22 @@ def dashboard(request):
                 message='Welcome to TAU Agrostudies Portal! Your application has been received and is under review.'
             )
     
-        context = {
-            'applicant': applicant,
-            'farm_applications': farm_applications,
-            'unread_notifications_count': Notification.objects.filter(user=request.user, is_read=False).count(),
-        }
+    context = {
+        'applicant': applicant,
+        'farm_applications': farm_applications,
+            'unread_notifications_count': Notification.objects.filter(user=request.user, read=False).count(),
+    }
         print("DEBUG: Rendering dashboard template")
-        return render(request, 'applicants/dashboard.html', context)
+    return render(request, 'applicants/dashboard.html', context)
     except Applicant.DoesNotExist:
-        print("DEBUG: Applicant does not exist, creating a temporary profile")
-        # Instead of redirecting, create a basic profile for the user
-        try:
-            applicant = Applicant(
-                user=request.user,
-                first_name=request.user.first_name or "",
-                last_name=request.user.last_name or "",
-                student_number=f"TEMP{request.user.id}",
-                date_of_birth=timezone.now().date(),
-                gender='other'
-            )
-            applicant.save()
-            messages.info(request, 'A basic profile has been created for you. Please update your details in the profile section.')
-            return redirect('applicants:update_profile')
-        except Exception as e:
-            print(f"DEBUG: Error creating temporary profile: {str(e)}")
-            messages.error(request, f"Could not create a profile automatically: {str(e)}")
-            return render(request, 'applicants/dashboard.html', {
-                'error': 'Profile creation failed',
-                'unread_notifications_count': Notification.objects.filter(user=request.user, is_read=False).count(),
-            })
+        print("DEBUG: Applicant does not exist, redirecting to register_applicant")
+        messages.error(request, 'You need to complete your profile before accessing the dashboard.')
+        return redirect('applicants:register_applicant')
     except Exception as e:
         print(f"DEBUG: Exception occurred: {str(e)}")
         messages.error(request, f'An error occurred: {str(e)}')
-        # Return to a safe page instead of redirecting
-        return render(request, 'applicants/dashboard.html', {
-            'error': str(e),
-            'unread_notifications_count': Notification.objects.filter(user=request.user, is_read=False).count(),
-        })
+        # Redirect to register applicant instead to prevent redirect loops
+        return redirect('applicants:register_applicant')
 
 @login_required
 @user_passes_test(is_admin)
@@ -246,9 +225,9 @@ def view_farms(request):
         if applicant.status != 'approved':
             messages.warning(request, 'Your application needs to be approved before you can view and apply to farms.')
             return redirect('applicants:dashboard')
-    except Applicant.DoesNotExist:
-        messages.info(request, 'Please complete your profile information first.')
-        return redirect('applicants:update_profile')
+    except:
+        messages.error(request, 'Please complete your applicant profile first.')
+        return redirect('applicants:dashboard')
     
     farms = Farm.objects.all()
     search_query = request.GET.get('search')
@@ -290,9 +269,9 @@ def farm_detail(request, farm_id):
         if applicant.status != 'approved':
             messages.warning(request, 'Your application needs to be approved before you can view and apply to farms.')
             return redirect('applicants:dashboard')
-    except Applicant.DoesNotExist:
-        messages.info(request, 'Please complete your profile information first.')
-        return redirect('applicants:update_profile')
+    except:
+        messages.error(request, 'Please complete your applicant profile first.')
+        return redirect('applicants:dashboard')
     
     farm = get_object_or_404(Farm, id=farm_id)
     already_applied = FarmApplication.objects.filter(applicant=applicant, farm=farm).exists()
@@ -306,9 +285,9 @@ def apply_to_farm(request, farm_id):
         if applicant.status != 'approved':
             messages.warning(request, 'Your application needs to be approved before you can apply to farms.')
             return redirect('applicants:dashboard')
-    except Applicant.DoesNotExist:
-        messages.info(request, 'Please complete your profile information first.')
-        return redirect('applicants:update_profile')
+    except:
+        messages.error(request, 'Please complete your applicant profile first.')
+        return redirect('applicants:dashboard')
     
     farm = get_object_or_404(Farm, id=farm_id)
     
@@ -430,8 +409,8 @@ def upload_documents(request):
     try:
         applicant = request.user.applicant
     except Applicant.DoesNotExist:
-        messages.info(request, 'Please complete your profile information before uploading documents.')
-        return redirect('applicants:update_profile')
+        messages.error(request, 'Please complete your applicant profile first.')
+        return redirect('applicants:register_applicant')
 
     # Get all documents for the applicant
     documents = Document.objects.filter(applicant=applicant)
@@ -578,17 +557,8 @@ def update_profile(request):
     try:
         applicant = request.user.applicant
     except Applicant.DoesNotExist:
-        # Create a basic profile for the user
-        applicant = Applicant(
-            user=request.user,
-            first_name=request.user.first_name or "",
-            last_name=request.user.last_name or "",
-            student_number=f"TEMP{request.user.id}",
-            date_of_birth=timezone.now().date(),
-            gender='other'
-        )
-        applicant.save()
-        messages.info(request, "A preliminary profile has been created for you. Please complete it with your information.")
+        messages.error(request, "You don't have an applicant profile.")
+        return redirect('applicants:register_applicant')
     
     if request.method == 'POST':
         form = ProfileUpdateForm(request.POST, request.FILES, instance=applicant, user=request.user)
@@ -613,8 +583,8 @@ def update_profile(request):
             user.email = form.cleaned_data['email']
             user.save()
             
-            messages.success(request, 'Profile updated successfully!')
-            return redirect('applicants:dashboard')
+        messages.success(request, 'Profile updated successfully!')
+        return redirect('applicants:dashboard')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:

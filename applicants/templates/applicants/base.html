@@ -8,8 +8,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Add Bootstrap JS for modals -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery for AJAX requests -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     {% block extra_css %}{% endblock %}
     <style>
         .pattern-bg {
@@ -20,6 +24,92 @@
             width: 20px;
             height: 20px;
             margin-right: 5px;
+        }
+        /* Modal styles to match site theme */
+        .modal-header {
+            background-color: #4CAF50;
+            color: white;
+            border-bottom: none;
+        }
+        .modal-title {
+            font-weight: bold;
+        }
+        .modal-footer {
+            border-top: none;
+        }
+        .btn-primary {
+            background-color: #4CAF50;
+            border-color: #4CAF50;
+        }
+        .btn-primary:hover {
+            background-color: #388E3C;
+            border-color: #388E3C;
+        }
+        .modal-body h3 {
+            color: #4CAF50;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+        .modal-body p {
+            margin-bottom: 1rem;
+        }
+        /* Notification bell styles */
+        .notification-bell {
+            position: relative;
+            cursor: pointer;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #FF5722;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .notification-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 15px;
+            transition: background-color 0.3s;
+        }
+        .notification-item:hover {
+            background-color: #f9f9f9;
+        }
+        .notification-item.unread {
+            background-color: #e8f5e9;
+        }
+        .notification-item .notification-time {
+            font-size: 0.75rem;
+            color: #666;
+        }
+        .notification-empty {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+        }
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-bottom: 1px solid #eee;
+        }
+        .notification-header h6 {
+            margin: 0;
+        }
+        .mark-all-read {
+            font-size: 0.8rem;
+            color: #4CAF50;
+            cursor: pointer;
+        }
+        .mark-all-read:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -40,9 +130,15 @@
                         </a>
                     </div>
                 </div>
-                <div class="flex space-x-4">
+                <div class="flex space-x-4 items-center">
                     {% if user.is_authenticated %}
                         {% if not user.is_staff %}
+                        <!-- Notification Bell -->
+                        <div class="notification-bell text-white mr-2" data-bs-toggle="modal" data-bs-target="#notificationsModal">
+                            <i class="bi bi-bell-fill text-xl"></i>
+                            <span class="notification-badge" id="notification-badge">0</span>
+                        </div>
+                        
                         <a href="{% url 'applicants:upload_documents' %}" class="flex items-center text-white hover:bg-[#A5D6A7] hover:text-[#795548] px-3 py-2 rounded-md transition-colors duration-200">
                             <img src="{% static 'applicants/design_assets/icons/document-icon.svg' %}" alt="" class="nav-icon">
                             Documents
@@ -91,12 +187,268 @@
                 </div>
                 <div class="flex space-x-4">
                     <a href="{% url 'applicants:contact_support' %}" class="text-white hover:text-[#A5D6A7]">Contact Support</a>
-                    <a href="{% url 'applicants:privacy_policy' %}" class="text-white hover:text-[#A5D6A7]">Privacy Policy</a>
-                    <a href="{% url 'applicants:terms_of_service' %}" class="text-white hover:text-[#A5D6A7]">Terms of Service</a>
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#privacyPolicyModal" class="text-white hover:text-[#A5D6A7]">Privacy Policy</a>
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#termsOfServiceModal" class="text-white hover:text-[#A5D6A7]">Terms of Service</a>
                 </div>
             </div>
         </div>
     </footer>
+
+    <!-- Notifications Modal -->
+    {% if user.is_authenticated and not user.is_staff %}
+    <div class="modal fade" id="notificationsModal" tabindex="-1" aria-labelledby="notificationsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="notificationsModalLabel">Notifications</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="notification-header">
+                    <h6>Recent Notifications</h6>
+                    <span class="mark-all-read" id="mark-all-read">Mark all as read</span>
+                </div>
+                <div class="modal-body p-0" id="notifications-container">
+                    <div class="notification-empty">
+                        <p>Loading notifications...</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Privacy Policy Modal -->
+    <div class="modal fade" id="privacyPolicyModal" tabindex="-1" aria-labelledby="privacyPolicyModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="privacyPolicyModalLabel">Privacy Policy</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Last updated: March 15, 2025</p>
+                    
+                    <p>This Privacy Policy describes how TAU Agrostudies Portal ("we", "us", or "our") collects, uses, and discloses your personal information when you use our portal.</p>
+                    
+                    <h3>Information We Collect</h3>
+                    <p>We collect information that you provide directly to us, including:</p>
+                    <ul>
+                        <li>Personal information (name, email address, phone number, date of birth)</li>
+                        <li>Educational information (transcripts, certificates)</li>
+                        <li>Professional information (resumes, work experience)</li>
+                        <li>Profile pictures and other media you upload</li>
+                        <li>Social media profile information you choose to share</li>
+                    </ul>
+                    
+                    <h3>How We Use Your Information</h3>
+                    <p>We use the information we collect to:</p>
+                    <ul>
+                        <li>Process your application to the Agrostudies program</li>
+                        <li>Match you with appropriate farm placements</li>
+                        <li>Communicate with you about your application status</li>
+                        <li>Improve and optimize our portal</li>
+                        <li>Comply with legal obligations</li>
+                    </ul>
+                    
+                    <h3>Information Sharing</h3>
+                    <p>We may share your information with:</p>
+                    <ul>
+                        <li>Farm partners for placement consideration</li>
+                        <li>Educational institutions for verification purposes</li>
+                        <li>Service providers who perform services on our behalf</li>
+                        <li>Government authorities when required by law</li>
+                    </ul>
+                    
+                    <h3>Data Security</h3>
+                    <p>We implement appropriate security measures to protect your personal information. However, no method of transmission over the Internet or electronic storage is 100% secure, and we cannot guarantee absolute security.</p>
+                    
+                    <h3>Your Rights</h3>
+                    <p>Depending on your location, you may have certain rights regarding your personal information, including:</p>
+                    <ul>
+                        <li>Access to your personal information</li>
+                        <li>Correction of inaccurate information</li>
+                        <li>Deletion of your information</li>
+                        <li>Restriction of processing</li>
+                        <li>Data portability</li>
+                    </ul>
+                    
+                    <h3>Changes to This Privacy Policy</h3>
+                    <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date.</p>
+                    
+                    <h3>Contact Us</h3>
+                    <p>If you have any questions about this Privacy Policy, please contact us at privacy@tauagrostudies.edu.ph.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms of Service Modal -->
+    <div class="modal fade" id="termsOfServiceModal" tabindex="-1" aria-labelledby="termsOfServiceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="termsOfServiceModalLabel">Terms of Service</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Last updated: March 15, 2025</p>
+                    
+                    <p>Please read these Terms of Service ("Terms") carefully before using the TAU Agrostudies Portal.</p>
+                    
+                    <h3>Acceptance of Terms</h3>
+                    <p>By accessing or using the TAU Agrostudies Portal, you agree to be bound by these Terms. If you disagree with any part of the Terms, you may not access the portal.</p>
+                    
+                    <h3>Eligibility</h3>
+                    <p>To use the TAU Agrostudies Portal, you must be at least 18 years old and meet the eligibility requirements for the Agrostudies program. You represent and warrant that all information you provide during registration is accurate and complete.</p>
+                    
+                    <h3>User Accounts</h3>
+                    <p>When you create an account, you are responsible for:</p>
+                    <ul>
+                        <li>Maintaining the confidentiality of your account credentials</li>
+                        <li>All activities that occur under your account</li>
+                        <li>Notifying us immediately of any unauthorized use of your account</li>
+                    </ul>
+                    
+                    <h3>Application Process</h3>
+                    <p>Submission of an application does not guarantee acceptance into the Agrostudies program. All applications are subject to review and approval by TAU and partner farms. We reserve the right to reject any application at our discretion.</p>
+                    
+                    <h3>User Content</h3>
+                    <p>You retain ownership of any content you submit to the portal, but you grant us a non-exclusive, royalty-free license to use, reproduce, and display such content for the purpose of providing and improving our services.</p>
+                    
+                    <h3>Prohibited Conduct</h3>
+                    <p>You agree not to:</p>
+                    <ul>
+                        <li>Use the portal for any illegal purpose</li>
+                        <li>Submit false or misleading information</li>
+                        <li>Attempt to gain unauthorized access to the portal or other user accounts</li>
+                        <li>Interfere with the proper functioning of the portal</li>
+                        <li>Engage in any activity that could harm the portal or other users</li>
+                    </ul>
+                    
+                    <h3>Termination</h3>
+                    <p>We reserve the right to suspend or terminate your access to the portal at any time for violation of these Terms or for any other reason at our discretion.</p>
+                    
+                    <h3>Disclaimer of Warranties</h3>
+                    <p>The portal is provided "as is" and "as available" without warranties of any kind, either express or implied.</p>
+                    
+                    <h3>Limitation of Liability</h3>
+                    <p>To the maximum extent permitted by law, TAU shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of or inability to use the portal.</p>
+                    
+                    <h3>Changes to Terms</h3>
+                    <p>We may modify these Terms at any time. Your continued use of the portal after any changes indicates your acceptance of the modified Terms.</p>
+                    
+                    <h3>Governing Law</h3>
+                    <p>These Terms shall be governed by and construed in accordance with the laws of the Philippines, without regard to its conflict of law provisions.</p>
+                    
+                    <h3>Contact Us</h3>
+                    <p>If you have any questions about these Terms, please contact us at terms@tauagrostudies.edu.ph.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     {% block extra_js %}{% endblock %}
+    
+    <!-- Notification JavaScript -->
+    {% if user.is_authenticated and not user.is_staff %}
+    <script>
+        $(document).ready(function() {
+            // Function to format date
+            function formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleString();
+            }
+            
+            // Function to load notifications
+            function loadNotifications() {
+                $.ajax({
+                    url: '{% url "applicants:get_notifications" %}',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        const notificationsContainer = $('#notifications-container');
+                        notificationsContainer.empty();
+                        
+                        // Update notification badge
+                        $('#notification-badge').text(data.unread_count);
+                        if (data.unread_count > 0) {
+                            $('#notification-badge').show();
+                        } else {
+                            $('#notification-badge').hide();
+                        }
+                        
+                        // Display notifications
+                        if (data.notifications.length === 0) {
+                            notificationsContainer.html('<div class="notification-empty"><p>No notifications yet</p></div>');
+                        } else {
+                            data.notifications.forEach(function(notification) {
+                                const notificationItem = $('<div class="notification-item ' + (notification.is_read ? '' : 'unread') + '" data-id="' + notification.id + '">');
+                                notificationItem.html(`
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <p>${notification.message}</p>
+                                            <span class="notification-time">${formatDate(notification.created_at)}</span>
+                                        </div>
+                                        ${notification.is_read ? '' : '<span class="badge bg-primary rounded-pill">New</span>'}
+                                    </div>
+                                `);
+                                notificationsContainer.append(notificationItem);
+                            });
+                        }
+                    },
+                    error: function() {
+                        $('#notifications-container').html('<div class="notification-empty"><p>Failed to load notifications</p></div>');
+                    }
+                });
+            }
+            
+            // Load notifications when page loads
+            loadNotifications();
+            
+            // Refresh notifications every 30 seconds
+            setInterval(loadNotifications, 30000);
+            
+            // Mark notification as read when clicked
+            $(document).on('click', '.notification-item', function() {
+                const notificationId = $(this).data('id');
+                const notificationItem = $(this);
+                
+                $.ajax({
+                    url: '/applicants/notifications/mark-read/' + notificationId + '/',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function() {
+                        notificationItem.removeClass('unread');
+                        notificationItem.find('.badge').remove();
+                        loadNotifications();
+                    }
+                });
+            });
+            
+            // Mark all notifications as read
+            $('#mark-all-read').click(function() {
+                $.ajax({
+                    url: '{% url "applicants:mark_all_notifications_read" %}',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function() {
+                        $('.notification-item').removeClass('unread');
+                        $('.notification-item .badge').remove();
+                        loadNotifications();
+                    }
+                });
+            });
+        });
+    </script>
+    {% endif %}
 </body>
 </html>

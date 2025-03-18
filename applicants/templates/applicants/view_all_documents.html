@@ -1,9 +1,11 @@
 {% extends 'applicants/base.html' %}
 {% load static %}
+{% load custom_filters %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-6">
-    <!-- Back Button -->
+    <!-- Back Button - Only show if not already on dashboard -->
+    {% if request.resolver_match.url_name != 'dashboard' %}
     <div class="mb-4">
         <a href="{% url 'applicants:dashboard' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-[#795548] bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#795548] shadow-sm border-[#795548]">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -12,68 +14,71 @@
             Back to Dashboard
         </a>
     </div>
+    {% endif %}
 
     <!-- Page Header -->
     <div class="bg-white rounded-lg shadow-lg p-6 mb-6 pattern-bg">
-        <div class="flex flex-col md:flex-row justify-between items-center">
-            <div class="flex items-center">
-                <img src="{% static 'applicants/design_assets/icons/document-icon.svg' %}" alt="" class="w-8 h-8 mr-3">
-                <h2 class="text-2xl font-bold text-[#795548]">Applicant Documents</h2>
-            </div>
-            
-            <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto mt-4 md:mt-0">
-                <!-- Filter Dropdown -->
-                <div class="relative w-full md:w-64">
-                    <select id="statusFilter" class="w-full px-4 py-2 rounded-lg border-2 border-[#A5D6A7] focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent transition-all duration-200 shadow-sm appearance-none">
-                        <option value="all">All Documents</option>
-                        <option value="pending">Pending Verification</option>
-                        <option value="verified">Verified</option>
-                        <option value="rejected">Rejected</option>
-                    </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </div>
-                </div>
-                
-                <!-- Search Box -->
-                <div class="relative w-full md:w-64">
-                    <input type="text" id="applicantSearch" placeholder="Search applicants..." class="w-full px-4 py-2 pl-10 rounded-lg border-2 border-[#A5D6A7] focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent transition-all duration-200 shadow-sm">
-                    <div class="absolute left-3 top-2.5 text-gray-400">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
+        <div class="flex items-center">
+            <img src="{% static 'applicants/design_assets/icons/document-icon.svg' %}" alt="" class="w-8 h-8 mr-3">
+            <h2 class="text-2xl font-bold text-[#795548]">Document Management</h2>
         </div>
     </div>
-
-    <!-- Documents Table Card -->
+    
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <h3 class="text-lg font-semibold text-[#795548] mb-4">Filter Documents</h3>
+        
+        <form method="get" action="{% url 'applicants:view_all_documents' %}">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="document_type" class="block text-sm font-medium text-gray-700 mb-1">Document Type</label>
+                    <select id="document_type" name="document_type" class="w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-[#4CAF50] focus:ring focus:ring-[#A5D6A7] focus:ring-opacity-50">
+                        <option value="">All Document Types</option>
+                        {% for type_value, type_label in document_types %}
+                        <option value="{{ type_value }}" {% if current_document_type == type_value %}selected{% endif %}>{{ type_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="document_status" class="block text-sm font-medium text-gray-700 mb-1">Document Status</label>
+                    <select id="document_status" name="document_status" class="w-full px-3 py-2 rounded-md border-gray-300 shadow-sm focus:border-[#4CAF50] focus:ring focus:ring-[#A5D6A7] focus:ring-opacity-50">
+                        <option value="">All Statuses</option>
+                        {% for status_value, status_label in status_choices %}
+                        <option value="{{ status_value }}" {% if current_document_status == status_value %}selected{% endif %}>{{ status_label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="flex items-end">
+                    <button type="submit" class="w-full px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-[#4CAF50] hover:bg-[#3D8B40] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4CAF50] shadow-sm">
+                        Apply Filters
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Documents Table -->
     <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-        <!-- Table Header -->
-        <div class="p-6 border-b border-gray-200 flex items-center">
-            <img src="{% static 'applicants/design_assets/icons/document-icon.svg' %}" alt="" class="w-6 h-6 mr-2">
-            <h3 class="text-xl font-semibold text-[#795548]">Documents</h3>
+        <div class="p-6 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-[#795548]">Applicant Documents</h3>
+            <p class="text-sm text-gray-500 mt-1">Showing {{ applicants.count }} applicants</p>
         </div>
         
-        <!-- Documents Table -->
+        {% if applicants %}
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicant</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Resume</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transcript</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicant</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Documents</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     {% for applicant in applicants %}
-                    <tr class="hover:bg-gray-50 transition-colors document-row" 
-                        data-resume-status="{{ applicant.resume_status|default:'none' }}" 
-                        data-transcript-status="{{ applicant.transcript_status|default:'none' }}">
+                    <tr>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="flex-shrink-0 h-10 w-10 bg-[#A5D6A7] rounded-full flex items-center justify-center text-white font-bold">
@@ -82,135 +87,53 @@
                                 <div class="ml-4">
                                     <div class="text-sm font-medium text-gray-900">{{ applicant.full_name }}</div>
                                     <div class="text-sm text-gray-500">{{ applicant.student_number }}</div>
-                                    <div class="text-sm text-gray-500">{{ applicant.user.email }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            {% if applicant.resume %}
-                            <div class="flex flex-col">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    {% if applicant.resume_status == 'verified' %}bg-green-100 text-green-800
-                                    {% elif applicant.resume_status == 'rejected' %}bg-red-100 text-red-800
-                                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
-                                    {{ applicant.resume_status|title }}
-                                </span>
-                                <span class="text-xs text-gray-500 mt-1">{{ applicant.resume_uploaded_at|date:"M d, Y" }}</span>
-                                <a href="{{ applicant.resume.url }}" target="_blank" class="text-[#4CAF50] hover:text-[#3D8B40] text-xs mt-1 inline-flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                    View
-                                </a>
+                        <td class="px-6 py-4">
+                            <div class="space-y-2">
+                                {% if applicant.id in applicant_documents %}
+                                    {% for document in applicant_documents|get_item:applicant.id %}
+                                    <div class="flex items-center">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                                            {% if document.status == 'verified' %}bg-green-100 text-green-800
+                                            {% elif document.status == 'rejected' %}bg-red-100 text-red-800
+                                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                            {{ document.get_document_type_display }}
+                                        </span>
+                                        <span class="ml-2 text-xs text-gray-500">
+                                            {{ document.uploaded_at|date:"M d, Y" }}
+                                        </span>
+                                        <a href="{{ document.file.url }}" target="_blank" class="ml-2 text-[#4CAF50] hover:text-[#3D8B40] text-xs">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-sm text-gray-500">No documents uploaded</span>
+                                {% endif %}
                             </div>
-                            {% else %}
-                            <span class="text-gray-400 text-sm">Not uploaded</span>
-                            {% endif %}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            {% if applicant.transcript %}
-                            <div class="flex flex-col">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    {% if applicant.transcript_status == 'verified' %}bg-green-100 text-green-800
-                                    {% elif applicant.transcript_status == 'rejected' %}bg-red-100 text-red-800
-                                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
-                                    {{ applicant.transcript_status|title }}
-                                </span>
-                                <span class="text-xs text-gray-500 mt-1">{{ applicant.transcript_uploaded_at|date:"M d, Y" }}</span>
-                                <a href="{{ applicant.transcript.url }}" target="_blank" class="text-[#4CAF50] hover:text-[#3D8B40] text-xs mt-1 inline-flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
-                                    View
-                                </a>
-                            </div>
-                            {% else %}
-                            <span class="text-gray-400 text-sm">Not uploaded</span>
-                            {% endif %}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{% url 'applicants:verify_document' applicant.id %}" class="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-[#795548] hover:bg-[#6D4C41] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#795548] shadow-sm">
-                                <img src="{% static 'applicants/design_assets/icons/document-icon.svg' %}" alt="" class="w-4 h-4 mr-1">
-                                Verify Documents
-                            </a>
-                            <a href="{% url 'applicants:review_application' applicant.id %}" class="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-[#795548] bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#795548] shadow-sm border-[#795548] mt-2">
-                                <img src="{% static 'applicants/design_assets/icons/user-icon.svg' %}" alt="" class="w-4 h-4 mr-1">
-                                Review Application
-                            </a>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="4" class="px-6 py-10 text-center text-gray-500">
-                            <div class="flex flex-col items-center justify-center">
-                                <img src="{% static 'applicants/design_assets/illustrations/farm-illustration.svg' %}" alt="No documents" class="w-32 h-32 mb-4 opacity-50">
-                                <span class="text-lg font-medium">No documents found.</span>
-                                <p class="text-sm text-gray-400 mt-1">No applicants have uploaded documents yet.</p>
-                            </div>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <a href="{% url 'applicants:verify_document' applicant.id %}" class="text-[#4CAF50] hover:text-[#3D8B40]">Verify Documents</a>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-        
-        <!-- Pagination (if needed) -->
-        <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
-            <div class="flex justify-between items-center">
-                <div class="text-sm text-gray-500">
-                    Showing <span class="font-medium">{{ applicants|length }}</span> applicants
-                </div>
-                <!-- Add pagination controls here if needed -->
+        {% else %}
+        <div class="p-6 text-center">
+            <div class="flex flex-col items-center justify-center py-6">
+                <img src="{% static 'applicants/design_assets/illustrations/farm-illustration.svg' %}" alt="No documents" class="w-32 h-32 mb-4 opacity-50">
+                <p class="text-gray-500 mb-2">No documents found matching your filters.</p>
+                <a href="{% url 'applicants:view_all_documents' %}" class="text-[#4CAF50] hover:text-[#3D8B40]">Clear filters</a>
             </div>
         </div>
+        {% endif %}
     </div>
 </div>
-
-<!-- Add JavaScript for filtering and search -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const statusFilter = document.getElementById('statusFilter');
-    const searchInput = document.getElementById('applicantSearch');
-    const documentRows = document.querySelectorAll('.document-row');
-    
-    // Filter by status
-    statusFilter.addEventListener('change', filterDocuments);
-    
-    // Search by applicant name or student number
-    searchInput.addEventListener('keyup', filterDocuments);
-    
-    function filterDocuments() {
-        const statusValue = statusFilter.value;
-        const searchTerm = searchInput.value.toLowerCase();
-        
-        documentRows.forEach(row => {
-            const resumeStatus = row.getAttribute('data-resume-status');
-            const transcriptStatus = row.getAttribute('data-transcript-status');
-            const applicantName = row.querySelector('td:first-child .text-sm.font-medium')?.textContent.toLowerCase() || '';
-            const studentNumber = row.querySelector('td:first-child .text-sm.text-gray-500:first-of-type')?.textContent.toLowerCase() || '';
-            const email = row.querySelector('td:first-child .text-sm.text-gray-500:last-of-type')?.textContent.toLowerCase() || '';
-            
-            // Check if matches status filter
-            let statusMatch = true;
-            if (statusValue !== 'all') {
-                statusMatch = (resumeStatus === statusValue || transcriptStatus === statusValue);
-            }
-            
-            // Check if matches search term
-            const searchMatch = applicantName.includes(searchTerm) || 
-                               studentNumber.includes(searchTerm) || 
-                               email.includes(searchTerm);
-            
-            // Show/hide row based on filters
-            if (statusMatch && searchMatch) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-    }
-});
-</script>
 {% endblock %} 

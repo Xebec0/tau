@@ -35,15 +35,18 @@ urlpatterns = [
     path('reports/', views.generate_reports, name='generate_reports'),
     path('documents/view-all/', views.view_all_documents, name='view_all_documents'),
     path('documents/verify/<int:applicant_id>/', views.verify_document, name='verify_document'),
+    path('documents/send-reminder/<int:applicant_id>/', views.send_document_reminder, name='send_document_reminder'),
+    path('send-notification/<int:applicant_id>/', views.send_notification, name='send_notification'),
     
     # User Features
     path('documents/upload/', views.upload_documents, name='upload_documents'),
     path('profile/update/', views.update_profile, name='update_profile'),
     path('support/', views.contact_support, name='contact_support'),
     
-    # Privacy Policy and Terms of Service
-    path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
-    path('terms-of-service/', views.terms_of_service, name='terms_of_service'),
+    # Notification Features
+    path('notifications/', views.get_notifications, name='get_notifications'),
+    path('notifications/mark-read/<int:notification_id>/', views.mark_notification_read, name='mark_notification_read'),
+    path('notifications/mark-all-read/', views.mark_all_notifications_read, name='mark_all_notifications_read'),
     
     # This must be last as it's a catch-all pattern
     path('<str:student_number>/', views.applicant_detail, name='applicant_detail'),
